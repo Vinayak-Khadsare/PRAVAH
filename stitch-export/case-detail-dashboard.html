@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PRAVAH - Executive Approval Operations</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              ivory: "#F7F4EC",
+              surface: "#FFFFFF",
+              subtle: "#F2EFE7",
+              border: "#DCDDD4",
+              borderStrong: "#C5C7BC",
+              forest: "#0F3826",
+              forestHover: "#092519",
+              forestLight: "#E8F0EB",
+              textPrimary: "#1E2621",
+              textMuted: "#59655D",
+              alertRed: "#B84040",
+              alertBg: "#FDF2F2",
+              amber: "#B7791F",
+              amberBg: "#FEF9EE",
+              copper: "#B8734E",
+              copperBg: "#FBF3ED",
+              tagBg: "#EBECE4"
+            }
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans"', 'Inter', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #F7F4EC;
+      color: #1E2621;
+      font-family: 'IBM Plex Sans', sans-serif;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F4EC;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #DCDDD4;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C5C7BC;
+    }
+  </style>
+<meta content="web_dashboard" name="shell-type"/></head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-forest selection:text-white">
+<header class="h-14 bg-brand-surface border-b border-brand-border sticky top-0 z-50 px-5 flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-sm bg-brand-forest text-white font-bold flex items-center justify-center tracking-wider text-sm shadow-sm">
+          PR
+        </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm tracking-tight text-brand-forest uppercase">PRAVAH</span>
+<span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-sm bg-brand-forestLight text-brand-forest border border-brand-forest/20">TIER-1 GOV</span>
+</div>
+<div class="text-[11px] text-brand-textMuted leading-none font-medium">AICTE Institutional Approval Operations Portal</div>
+</div>
+</div>
+<div class="hidden lg:flex items-center gap-2 pl-4 border-l border-brand-border text-xs text-brand-textMuted">
+<span class="material-symbols-outlined text-[16px] text-brand-forest">account_balance</span>
+<span class="font-medium text-brand-textPrimary">Zonal Jurisdiction:</span>
+<span class="font-semibold text-brand-forest">Northern Regional Office (NRO)</span>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block w-72">
+<span class="material-symbols-outlined absolute left-2.5 top-2 text-brand-textMuted text-[18px]">search</span>
+<input class="w-full h-8 pl-8 pr-12 text-xs bg-brand-subtle border border-brand-border rounded-sm focus:bg-white focus:outline-none focus:border-brand-forest text-brand-textPrimary placeholder:text-brand-textMuted/70" placeholder="Search App ID, Institute, Pin..." type="text"/>
+<kbd class="absolute right-2 top-2 text-[10px] text-brand-textMuted font-mono px-1 border border-brand-border rounded bg-white">⌘K</kbd>
+</div>
+<div class="flex items-center gap-2 border-l border-brand-border pl-3">
+<button class="relative p-1.5 text-brand-textMuted hover:text-brand-textPrimary hover:bg-brand-subtle rounded-sm transition-colors" title="Notifications">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-brand-alertRed"></span>
+</button>
+<button class="p-1.5 text-brand-textMuted hover:text-brand-textPrimary hover:bg-brand-subtle rounded-sm transition-colors" title="Audit Trail">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</button>
+<div class="flex items-center gap-2.5 ml-2 pl-2 border-l border-brand-border">
+<div class="w-7 h-7 rounded-sm bg-brand-subtle border border-brand-border text-brand-forest font-semibold text-xs flex items-center justify-center">
+            RS
+          </div>
+<div class="hidden sm:block text-left">
+<div class="text-xs font-semibold leading-tight text-brand-textPrimary">Dr. R. K. Srivastava</div>
+<div class="text-[10px] text-brand-textMuted leading-tight">Member Secretary (RO Auth)</div>
+</div>
+</div>
+</div>
+</div>
+</header>
+<div class="flex-1 flex w-full">
+<aside class="w-64 bg-brand-surface border-r border-brand-border shrink-0 flex flex-col justify-between hidden md:flex">
+<div class="p-3">
+<div class="text-[10px] uppercase font-bold tracking-wider text-brand-textMuted px-2 mb-2">Main Console</div>
+<nav class="space-y-0.5">
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-semibold rounded-sm bg-brand-forest text-white shadow-sm" href="/dashboard">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+<span>Executive Dashboard</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/applications">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">folder_shared</span>
+<span>Applications Registry</span>
+<span class="ml-auto text-[10px] bg-brand-tagBg px-1.5 py-0.2 rounded font-bold text-brand-textMuted">1,428</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/workflow">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">fact_check</span>
+<span>Approval Workflow</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/evc">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">event_available</span>
+<span>EVC Scheduling</span>
+<span class="ml-auto text-[10px] bg-brand-amberBg text-brand-amber border border-brand-amber/30 px-1 py-0.2 rounded font-bold">64</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/compliance">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">gavel</span>
+<span>Institutional Compliance</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/documents">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">inventory_2</span>
+<span>Document Registry</span>
+</a>
+</nav>
+<div class="text-[10px] uppercase font-bold tracking-wider text-brand-textMuted px-2 mt-6 mb-2">Oversight &amp; Analytics</div>
+<nav class="space-y-0.5">
+<a class="flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/alerts">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-brand-alertRed">notification_important</span>
+<span>Alerts &amp; Escalations</span>
+</div>
+<span class="text-[10px] font-bold px-1.5 py-0.2 rounded bg-brand-alertRed text-white">4</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/workflow-intelligence">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">hub</span>
+<span>Workflow Intelligence</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/audit">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">history</span>
+<span>Audit Trail &amp; Logs</span>
+</a>
+<a class="flex items-center gap-2.5 px-2.5 py-1.5 text-xs font-medium rounded-sm text-brand-textPrimary hover:bg-brand-subtle transition-colors" href="/settings">
+<span class="material-symbols-outlined text-[18px] text-brand-textMuted">admin_panel_settings</span>
+<span>Administrative Config</span>
+</a>
+</nav>
+</div>
+<div class="p-3 border-t border-brand-border bg-brand-subtle/60 text-xs">
+<div class="flex items-center gap-1.5 text-brand-forest font-semibold mb-1">
+<span class="material-symbols-outlined text-[16px]">verified_user</span>
+<span>Statutory SLA Protocol</span>
+</div>
+<p class="text-[11px] text-brand-textMuted leading-tight">
+          Strict 15-day scrutinization ceiling enforceable per AICTE Regulations 2026.
+        </p>
+</div>
+</aside>
+<main class="flex-1 min-w-0 p-5 md:p-6 lg:p-7 space-y-5">
+<div class="flex flex-col w-full space-y-5 text-brand-textPrimary">
+<div class="flex flex-wrap items-center justify-between gap-3 bg-white px-4 py-2.5 rounded-lg border border-brand-border shadow-sm">
+<div class="flex flex-wrap items-center gap-2 text-xs text-brand-textMuted">
+<span class="flex items-center gap-1 text-brand-forest font-semibold">
+<span class="material-symbols-outlined text-[15px]">shield</span>
+        PRAVAH STATULATORY ARCHIVE
+      </span>
+<span>/</span>
+<a class="hover:text-brand-forest cursor-pointer transition-colors" href="/applications">Applications Registry</a>
+<span>/</span>
+<span>NRO Technical Desk</span>
+<span>/</span>
+<span class="font-mono text-brand-textPrimary font-semibold bg-brand-subtle px-1.5 py-0.5 rounded border border-brand-border">APP-2026-00124</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-brand-subtle text-brand-textMuted text-[10px] px-2.5 py-0.5 rounded tracking-wider uppercase font-semibold border border-brand-border">
+        CONFIDENTIAL REGULATORY RECORD • AUDITED TIER-1
+      </span>
+<span class="inline-flex items-center gap-1.5 bg-brand-alertBg text-brand-alertRed text-[10px] px-2.5 py-0.5 rounded uppercase font-bold border border-brand-alertRed/20">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-alertRed animate-pulse"></span>
+        SLA ESCALATED: DAY 16/15 (+24H OVERDUE)
+      </span>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-4">
+<div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+<div class="space-y-1.5">
+<div class="flex flex-wrap items-center gap-2">
+<span class="bg-brand-forest text-white text-xs px-2 py-0.5 rounded font-mono font-medium">PID: 1-4392811</span>
+<span class="bg-brand-copperBg text-brand-copper text-xs px-2 py-0.5 rounded uppercase font-semibold border border-brand-copper/30">APH 2026-27 PROVISIONAL</span>
+<span class="bg-brand-subtle text-brand-textMuted text-xs px-2 py-0.5 rounded font-mono border border-brand-border">PANEL-02 / RO-VERIF</span>
+</div>
+<h1 class="text-2xl text-brand-forest tracking-tight font-bold">
+          Dronacharya Institute of Engineering &amp; Technology
+        </h1>
+<p class="text-xs text-brand-textMuted flex items-center gap-2 flex-wrap">
+<span class="flex items-center gap-1 text-brand-textPrimary font-medium">
+<span class="material-symbols-outlined text-[15px] text-brand-forest">location_city</span>
+            Plot 42-B, Knowledge Park III, Greater Noida, Uttar Pradesh (Pin: 201310)
+          </span>
+<span>•</span>
+<span class="text-brand-textMuted">Northern Regional Office (NRO - Kanpur Jurisdiction)</span>
+<span>•</span>
+<span class="font-mono text-brand-textMuted">Geo-Tag: 28.4744° N, 77.4912° E</span>
+</p>
+</div>
+<div class="flex flex-wrap items-center gap-2 self-start shrink-0">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle text-brand-textPrimary text-xs font-semibold rounded hover:bg-brand-border transition-colors border border-brand-border">
+<span class="material-symbols-outlined text-[16px]">edit_note</span>
+          Record Observation
+        </button>
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-alertBg text-brand-alertRed text-xs font-semibold rounded hover:bg-brand-alertRed/10 transition-colors border border-brand-alertRed/30">
+<span class="material-symbols-outlined text-[16px]">assignment_late</span>
+          Issue Deficiency Form-B
+        </button>
+<div class="relative group">
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-brand-subtle text-brand-textMuted cursor-not-allowed text-xs font-semibold rounded border border-brand-border opacity-60" disabled="">
+<span class="material-symbols-outlined text-[16px]">event_busy</span>
+            Schedule EVC
+          </button>
+<div class="absolute right-0 bottom-full mb-1 hidden group-hover:block w-56 p-2 bg-brand-forest text-white text-[10px] rounded shadow-md z-30 font-sans">
+            Blocked: Statutory Title Encumbrance Certificate unverified under APH Rule 2.4.1.
+          </div>
+</div>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-forest text-white text-xs rounded hover:bg-brand-forestHover transition-colors shadow-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+          Recommend for EVC
+        </button>
+<button class="p-1.5 bg-brand-subtle text-brand-textMuted rounded hover:bg-brand-border transition-colors border border-brand-border" title="More Statutory Actions">
+<span class="material-symbols-outlined text-[20px]">more_vert</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-3 bg-brand-subtle/70 p-3 rounded border border-brand-border">
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Application Type</div>
+<div class="text-xs text-brand-textPrimary font-semibold truncate mt-0.5">New Technical Inst.</div>
+<div class="text-[11px] text-brand-textMuted truncate">UG Engg (4 Progs / 360 Seats)</div>
+</div>
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Academic Session</div>
+<div class="text-xs text-brand-textPrimary font-semibold mt-0.5">AY 2026-2027</div>
+<div class="text-[11px] text-brand-textMuted truncate">Annual Approval Cycle</div>
+</div>
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Scrutiny Stage</div>
+<div class="text-xs text-brand-copper font-semibold mt-0.5 flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-brand-copper"></span>
+          Stage 03 (Re-Scrutiny)
+        </div>
+<div class="text-[11px] text-brand-alertRed font-medium truncate">Cure window elapsed 24h</div>
+</div>
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Assigned Officer</div>
+<div class="text-xs text-brand-textPrimary font-semibold mt-0.5">Dr. P. K. Verma</div>
+<div class="text-[11px] text-brand-textMuted truncate">Senior RO (Auth ID: 092)</div>
+</div>
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Statutory Ceiling</div>
+<div class="text-xs text-brand-alertRed font-semibold mt-0.5 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">timer_off</span>
+          16 Days / 15 Max
+        </div>
+<div class="text-[11px] text-brand-alertRed truncate font-mono">Overdue: +1d 08h 26m</div>
+</div>
+<div>
+<div class="text-[10px] text-brand-textMuted uppercase font-semibold">Last Registry Event</div>
+<div class="text-xs text-brand-textPrimary font-semibold mt-0.5">26 Feb 2026</div>
+<div class="text-[11px] text-brand-textMuted truncate">11:34 AM by Panel 02</div>
+</div>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">account_tree</span>
+<h2 class="text-base text-brand-forest font-bold">Statutory Approval Lifecycle Milestones</h2>
+</div>
+<span class="text-[10px] text-brand-textMuted bg-brand-subtle px-2 py-0.5 rounded font-mono border border-brand-border">
+        REGULATION REF: AICTE/APH/2026/CH-II
+      </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-6 gap-2 pt-2">
+<div class="relative bg-brand-subtle p-3 rounded border border-brand-border flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-forest flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-forest">check_circle</span>
+            STAGE 01
+          </span>
+<span class="font-mono text-[10px] text-brand-textMuted">10 Feb 2026</span>
+</div>
+<div>
+<div class="text-xs font-bold text-brand-textPrimary">Intake Submission</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Digital Packet Verified</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px] text-brand-textMuted font-medium">
+<span>0 Deficiencies</span>
+<span class="font-mono text-brand-textMuted">3d process</span>
+</div>
+</div>
+
+<div class="relative bg-brand-subtle p-3 rounded border border-brand-border flex flex-col justify-between space-y-2">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-forest flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-brand-forest">check_circle</span>
+            STAGE 02
+          </span>
+<span class="font-mono text-[10px] text-brand-textMuted">15 Feb 2026</span>
+</div>
+<div>
+<div class="text-xs font-bold text-brand-textPrimary">Scrutiny Committee</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Panel A Review Complete</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px] text-brand-alertRed font-medium">
+<span>1 Land Deed Flag</span>
+<span class="font-mono text-brand-textMuted">2d process</span>
+</div>
+</div>
+
+<div class="relative bg-brand-amberBg p-3 rounded border border-brand-copper shadow-sm flex flex-col justify-between space-y-2 ring-1 ring-brand-copper">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-copper flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-brand-alertRed animate-ping"></span>
+            STAGE 03 • ACTIVE
+          </span>
+<span class="bg-brand-alertRed text-white font-mono text-[9px] font-bold px-1 rounded">OVERDUE</span>
+</div>
+<div>
+<div class="text-xs font-bold text-brand-forest">Re-Scrutiny &amp; Cure</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Deficiency Notice Form-B</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px]">
+<span class="text-brand-alertRed font-bold">11 Days in Stage</span>
+<span class="font-mono text-brand-textMuted">Assigned: Dr. Verma</span>
+</div>
+</div>
+
+<div class="relative bg-brand-subtle/50 p-3 rounded border border-brand-border flex flex-col justify-between space-y-2 opacity-75">
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-brand-textMuted flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+            STAGE 04
+          </span>
+<span class="font-mono text-[10px] text-brand-textMuted">PREREQ BLOCKED</span>
+</div>
+<div>
+<div class="text-xs font-semibold text-brand-textMuted">Expert Visit (EVC)</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Physical Campus Audit</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px] text-brand-textMuted">
+<span>TBD (3-Member Pool)</span>
+<span class="font-mono text-brand-textMuted">--</span>
+</div>
+</div>
+
+<div class="relative bg-brand-subtle/50 p-3 rounded border border-brand-border flex flex-col justify-between space-y-2 opacity-60">
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-brand-textMuted flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+            STAGE 05
+          </span>
+<span class="font-mono text-[10px] text-brand-textMuted">CONDITIONAL</span>
+</div>
+<div>
+<div class="text-xs font-semibold text-brand-textMuted">Standing Hearing / SAC</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Appellate Committee</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px] text-brand-textMuted">
+<span>If Escalated</span>
+<span class="font-mono text-brand-textMuted">--</span>
+</div>
+</div>
+
+<div class="relative bg-brand-subtle/50 p-3 rounded border border-brand-border flex flex-col justify-between space-y-2 opacity-50">
+<div class="flex items-center justify-between">
+<span class="text-xs font-semibold text-brand-textMuted flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px]">flag</span>
+            STAGE 06
+          </span>
+<span class="font-mono text-[10px] text-brand-textMuted">30 APR 2026</span>
+</div>
+<div>
+<div class="text-xs font-semibold text-brand-textMuted">Final Decision / LoA</div>
+<div class="text-[11px] text-brand-textMuted mt-0.5">Council Issuance Target</div>
+</div>
+<div class="pt-2 flex items-center justify-between text-[11px] text-brand-textMuted">
+<span>Member Secretary</span>
+<span class="font-mono text-brand-textMuted">Final Gate</span>
+</div>
+</div>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-4">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-brand-subtle p-3 rounded-lg border border-brand-border">
+<div class="flex items-start gap-3">
+<div class="w-8 h-8 rounded bg-brand-alertBg text-brand-alertRed flex items-center justify-center shrink-0 mt-0.5 border border-brand-alertRed/30">
+<span class="material-symbols-outlined text-[20px]">warning</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="text-sm text-brand-forest font-bold">
+              Critical Blocker: Mandatory Land Deed Non-Compliance
+            </h3>
+<span class="bg-brand-alertRed text-white text-[10px] px-2 py-0.2 rounded font-bold">
+              APH RULE 2.4.1 VIOLATION
+            </span>
+</div>
+<p class="text-xs text-brand-textMuted mt-0.5">
+            This deficiency directly halts progression to Stage 04 (EVC) and freezes Architectural Cadre clearance.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-2 shrink-0">
+<button class="px-3 py-1.5 bg-white text-brand-forest text-xs rounded hover:bg-brand-subtle transition-colors border border-brand-border font-medium">
+          Examine Dossier #LD-2026-NRO-99
+        </button>
+<button class="px-3 py-1.5 bg-brand-copper text-white text-xs rounded hover:bg-brand-copper/90 transition-opacity shadow-sm font-medium">
+          Grant 48-Hour Grace Notice
+        </button>
+<button class="px-3 py-1.5 bg-brand-alertRed text-white text-xs rounded hover:bg-brand-alertRed/90 transition-opacity shadow-sm font-semibold">
+          Escalate to SAC Hearing
+        </button>
+</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+<div class="bg-brand-subtle/60 p-3.5 rounded border border-brand-border space-y-1.5">
+<div class="flex items-center gap-1.5 text-brand-copper text-xs uppercase font-bold">
+<span class="material-symbols-outlined text-[16px]">help_outline</span>
+          1. What Is Pending?
+        </div>
+<div class="text-xs font-semibold text-brand-textPrimary">
+          Certified 30-Year Registered Land Lease Deed &amp; Khasra Map Verification
+        </div>
+<p class="text-xs text-brand-textMuted leading-relaxed">
+          Clear, unencumbered land parcel of 5.20 contiguous acres at Knowledge Park III with Sub-Registrar endorsement stamps in accordance with APH Section 2.4.
+        </p>
+</div>
+<div class="bg-brand-subtle/60 p-3.5 rounded border border-brand-border space-y-1.5">
+<div class="flex items-center gap-1.5 text-brand-alertRed text-xs uppercase font-bold">
+<span class="material-symbols-outlined text-[16px]">report_problem</span>
+          2. Why Is It Blocked?
+        </div>
+<div class="text-xs font-semibold text-brand-textPrimary">
+          Unregistered MoU Uploaded; Rectification Lacks Sub-Registrar Seal
+        </div>
+<p class="text-xs text-brand-textMuted leading-relaxed">
+          Original submission (10 Feb) contained only an uncertified notary agreement. Supplementary deed submitted on 22 Feb omitted statutory stamp duty clearance certificates on Folios 14–18.
+        </p>
+</div>
+<div class="bg-brand-subtle/60 p-3.5 rounded border border-brand-border space-y-1.5">
+<div class="flex items-center gap-1.5 text-brand-forest text-xs uppercase font-bold">
+<span class="material-symbols-outlined text-[16px]">gavel</span>
+          3. Mandatory Regulatory Next Step
+        </div>
+<div class="text-xs font-semibold text-brand-textPrimary">
+          Issue Final Form-B Rejection Notice or 48-Hour Final Extension
+        </div>
+<p class="text-xs text-brand-textMuted leading-relaxed">
+          Dr. P. K. Verma (Senior Scrutiny Officer) must execute definitive Form-B rejection or invoke the 48-hour statutory grace prerogative prior to immediate Standing Appeals Council referral.
+        </p>
+</div>
+</div>
+
+<div class="flex flex-wrap items-center gap-4 text-xs bg-brand-subtle/40 p-2.5 rounded border border-brand-border">
+<span class="text-[10px] uppercase font-bold text-brand-textMuted">Downstream Dependents Halted:</span>
+<span class="inline-flex items-center gap-1 text-brand-textPrimary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-alertRed"></span>
+        EVC Inspection Panel 3-Member Constitution
+      </span>
+<span class="text-brand-border">•</span>
+<span class="inline-flex items-center gap-1 text-brand-textPrimary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-alertRed"></span>
+        Architectural Drawing &amp; Built-up Area Cadre Sign-Off
+      </span>
+<span class="text-brand-border">•</span>
+<span class="inline-flex items-center gap-1 text-brand-textPrimary font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-alertRed"></span>
+        AICTE Portal Digital Approval Key Allocation
+      </span>
+</div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+<div class="lg:col-span-8 space-y-5">
+<div class="bg-white rounded-lg border border-brand-border shadow-sm overflow-hidden">
+<div class="flex border-b border-brand-border bg-brand-subtle px-4 pt-3 gap-1 overflow-x-auto">
+<button class="px-3.5 py-2 text-xs font-bold text-brand-forest bg-white rounded-t border-t border-x border-brand-border shadow-sm flex items-center gap-2">
+<span>Deficiencies &amp; Scrutiny Observations</span>
+<span class="bg-brand-alertRed text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">1</span>
+<span class="bg-brand-forest text-white text-[10px] px-1.5 py-0.2 rounded-full font-mono">2</span>
+</button>
+<button class="px-3.5 py-2 text-xs font-medium text-brand-textMuted hover:text-brand-textPrimary transition-colors flex items-center gap-1.5">
+<span>Statutory Undertakings</span>
+<span class="text-brand-forest text-[14px] material-symbols-outlined">check_small</span>
+</button>
+<button class="px-3.5 py-2 text-xs font-medium text-brand-textMuted hover:text-brand-textPrimary transition-colors">
+<span>Infrastructure &amp; Land Parcels</span>
+</button>
+<button class="px-3.5 py-2 text-xs font-medium text-brand-textMuted hover:text-brand-textPrimary transition-colors">
+<span>Faculty Cadre &amp; Programs</span>
+</button>
+</div>
+
+<div class="p-5 space-y-4">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-sm text-brand-forest font-bold">Deficiency Registry Matrix</h3>
+<p class="text-xs text-brand-textMuted">Statutory verification records per AICTE Regulations 2026</p>
+</div>
+<button class="text-xs text-brand-forest font-bold flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]">file_download</span>
+              Export Scrutiny Form-A/B Dossier
+            </button>
+</div>
+
+<div class="space-y-3">
+<div class="bg-brand-subtle/50 rounded-lg p-4 border border-brand-border space-y-3 shadow-sm">
+<div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="w-6 h-6 rounded bg-brand-alertRed text-white font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    01
+                  </span>
+<div>
+<div class="flex items-center gap-2 flex-wrap">
+<span class="text-sm text-brand-forest font-bold">
+                        Clear Land Title &amp; Encumbrance Certificate
+                      </span>
+<span class="bg-brand-alertRed text-white text-[10px] px-2 py-0.2 rounded font-bold uppercase">
+                        CRITICAL • BLOCKING
+                      </span>
+<span class="bg-brand-subtle text-brand-textPrimary font-mono text-[10px] px-1.5 rounded border border-brand-border">
+                        REF: LD-2026-NRO-99
+                      </span>
+</div>
+<div class="text-xs text-brand-textMuted mt-1">
+                      Requirement: 5.20 contiguous acres at Plot 42-B, Knowledge Park III, registered for minimum 30 years without lien or second mortgages.
+                    </div>
+</div>
+</div>
+<span class="text-xs text-brand-alertRed bg-brand-alertBg px-2 py-0.5 rounded font-mono font-bold self-start border border-brand-alertRed/30">
+                  DEFICIENT (RE-SCRUTINY)
+                </span>
+</div>
+
+<div class="bg-white p-3 rounded border border-brand-border space-y-2 text-xs">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-brand-textMuted text-[16px] mt-0.5">account_circle</span>
+<div>
+<span class="font-semibold text-brand-textPrimary">Dr. P. K. Verma (Senior Scrutiny Officer):</span>
+<span class="text-brand-textMuted">"Uploaded PDF contains supplementary lease agreement executed on 22 Feb 2026. However, Sub-Registrar verification stamp duty seal is missing on Folios 14, 15, and 16. Khasra map is not attested by District Tehsildar."</span>
+<span class="text-brand-textMuted font-mono text-[10px] ml-1">(22 Feb 2026, 05:22 PM)</span>
+</div>
+</div>
+<div class="flex items-start gap-2 bg-brand-subtle/60 p-2 rounded border border-brand-border">
+<span class="material-symbols-outlined text-brand-copper text-[16px] mt-0.5">forward_to_inbox</span>
+<div>
+<span class="font-semibold text-brand-copper">Institution Representative Response (Dr. Arvind Sharma):</span>
+<span class="text-brand-textMuted">"Supplementary affidavit and treasury challan receipt submitted. Physical stamp clearance certificate is under expedited stamping at Gautam Buddha Nagar Registry Office."</span>
+<span class="text-brand-textMuted font-mono text-[10px] ml-1">(24 Feb 2026, 02:11 PM)</span>
+</div>
+</div>
+</div>
+
+<div class="flex items-center justify-between pt-1 flex-wrap gap-2">
+<div class="flex items-center gap-2 text-[11px] text-brand-textMuted font-mono">
+<span>File: Supplementary_Deed_v2.pdf (8.4 MB)</span>
+<span>•</span>
+<a class="text-brand-forest hover:underline font-bold flex items-center gap-0.5" href="#">
+<span class="material-symbols-outlined text-[13px]">visibility</span> View In-Line
+                  </a>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-2.5 py-1 bg-white text-brand-textPrimary text-xs rounded hover:bg-brand-subtle transition-colors font-semibold border border-brand-border">
+                    Request Physical Verification
+                  </button>
+<button class="px-2.5 py-1 bg-brand-forest text-white text-xs rounded hover:bg-brand-forestHover transition-colors font-semibold">
+                    Accept Rectification
+                  </button>
+</div>
+</div>
+</div>
+
+<div class="bg-brand-subtle/30 rounded-lg p-3.5 border border-brand-border space-y-2 opacity-90">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="w-6 h-6 rounded bg-brand-forest text-white font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    02
+                  </span>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-brand-forest font-bold">
+                        Fire Safety NOC Undertaking (Provisional Form-F)
+                      </span>
+<span class="bg-white text-brand-textMuted font-mono text-[10px] px-1.5 rounded border border-brand-border">
+                        REF: FS-UP-2026-88
+                      </span>
+</div>
+<div class="text-[12px] text-brand-textMuted mt-0.5">
+                      Provisional NOC from UP Fire Service Department for proposed Academic Block A &amp; B (Built-up area: 18,400 sq.m).
+                    </div>
+</div>
+</div>
+<span class="text-xs text-brand-forest bg-brand-forestLight px-2 py-0.5 rounded font-mono font-bold shrink-0 border border-brand-forest/20">
+                  COMPLIANT / VERIFIED
+                </span>
+</div>
+<div class="text-[11px] text-brand-textMuted flex items-center justify-between pt-1 font-mono">
+<span>Verified by Er. M. Joshi (Town Planning Directorate)</span>
+<span>Stamped: 18 Feb 2026, 14:10 IST</span>
+</div>
+</div>
+
+<div class="bg-brand-subtle/30 rounded-lg p-3.5 border border-brand-border space-y-2 opacity-90">
+<div class="flex items-start justify-between gap-2">
+<div class="flex items-start gap-2.5">
+<span class="w-6 h-6 rounded bg-brand-forest text-white font-mono text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                    03
+                  </span>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-xs text-brand-forest font-bold">
+                        AICTE Regulatory Scrutiny Fee &amp; Corpus FDR Proof
+                      </span>
+<span class="bg-white text-brand-textMuted font-mono text-[10px] px-1.5 rounded border border-brand-border">
+                        TXN: SBIN-2026-90812
+                      </span>
+</div>
+<div class="text-[12px] text-brand-textMuted mt-0.5">
+                      Statutory fee receipt of ₹7,00,000/- and Joint FDR ₹1,00,00,000/- with Regional Officer NRO.
+                    </div>
+</div>
+</div>
+<span class="text-xs text-brand-forest bg-brand-forestLight px-2 py-0.5 rounded font-mono font-bold shrink-0 border border-brand-forest/20">
+                  COMPLIANT / VERIFIED
+                </span>
+</div>
+<div class="text-[11px] text-brand-textMuted flex items-center justify-between pt-1 font-mono">
+<span>Auto-Reconciled via State Bank of India Gateway</span>
+<span>Confirmed: 11 Feb 2026, 10:15 IST</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">history_edu</span>
+<h3 class="text-sm text-brand-forest font-bold">Statutory Activity &amp; Scrutiny Audit Log</h3>
+</div>
+<span class="text-xs text-brand-textMuted font-mono">CRYPTOGRAPHIC LOG SEAL: SHA-256 #8F9A2B</span>
+</div>
+<div class="relative pl-6 space-y-4">
+<div class="absolute left-2.5 top-2 bottom-2 w-0.5 bg-brand-border"></div>
+
+<div class="relative group">
+<div class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-brand-alertRed ring-4 ring-brand-alertBg"></div>
+<div class="bg-brand-subtle/50 p-3 rounded border border-brand-border space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-alertRed uppercase">SLA Escalation Engine Alert</span>
+<span class="font-mono text-[11px] text-brand-textMuted">26 Feb 2026, 11:34 AM IST</span>
+</div>
+<p class="text-xs text-brand-textPrimary">
+                Automated regulatory flag raised: Case exceeded 15 working-day maximum scrutiny window without final clearance. Escalation dispatched to Member Secretary (RO Auth) and Regional Directorate.
+              </p>
+<div class="text-[10px] text-brand-textMuted font-mono">Actor: Pravah-System-Scheduler-Node-04 | Prior State: In-Scrutiny | New State: Overdue-Escalated</div>
+</div>
+</div>
+
+<div class="relative group">
+<div class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-brand-forest ring-4 ring-brand-forestLight"></div>
+<div class="bg-brand-subtle/50 p-3 rounded border border-brand-border space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-forest uppercase">Supplementary Affidavit Uploaded</span>
+<span class="font-mono text-[11px] text-brand-textMuted">22 Feb 2026, 04:15 PM IST</span>
+</div>
+<p class="text-xs text-brand-textPrimary">
+                Applicant representative Dr. Arvind Sharma uploaded file <code class="bg-white px-1 rounded font-mono text-[11px] border border-brand-border">DOC-4392811-LD2</code> in response to Deficiency Notice NRO-DEF-091.
+              </p>
+<div class="text-[10px] text-brand-textMuted font-mono">Actor: Applicant Signatory (Digital Token: DSC-991204) | Stage: Stage 03 Re-Scrutiny</div>
+</div>
+</div>
+
+<div class="relative group">
+<div class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-brand-copper ring-4 ring-brand-amberBg"></div>
+<div class="bg-brand-subtle/50 p-3 rounded border border-brand-border space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-copper uppercase">Form-B Deficiency Notice Dispatched</span>
+<span class="font-mono text-[11px] text-brand-textMuted">15 Feb 2026, 02:30 PM IST</span>
+</div>
+<p class="text-xs text-brand-textPrimary">
+                Scrutiny Committee Panel 02 determined Land Deed title to be legally deficient. Application returned from Stage 02 to Stage 03 with mandatory 7-day cure period assigned.
+              </p>
+<div class="text-[10px] text-brand-textMuted font-mono">Actor: Dr. P. K. Verma (Sr. Scrutiny Officer) | Sign-off ID: NRO-SCR-2026-44</div>
+</div>
+</div>
+
+<div class="relative group">
+<div class="absolute -left-6 top-1 w-2.5 h-2.5 rounded-full bg-brand-textMuted ring-4 ring-brand-border"></div>
+<div class="bg-brand-subtle/50 p-3 rounded border border-brand-border space-y-1">
+<div class="flex items-center justify-between">
+<span class="text-xs font-bold text-brand-textMuted uppercase">Application Intake Registration</span>
+<span class="font-mono text-[11px] text-brand-textMuted">10 Feb 2026, 09:00 AM IST</span>
+</div>
+<p class="text-xs text-brand-textPrimary">
+                Fresh technical institute application registered under Dronacharya Educational Trust. ₹7,00,000 regulatory processing fee cleared. Application dossier initiated.
+              </p>
+<div class="text-[10px] text-brand-textMuted font-mono">Actor: Pravah Intake Gateway | Initial State: Stage 01 Initial Intake</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="lg:col-span-4 space-y-5">
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-brand-alertRed text-[20px]">pace</span>
+<h3 class="text-sm text-brand-forest font-bold">Statutory SLA Runway</h3>
+</div>
+<span class="text-brand-alertRed font-mono text-[11px] font-bold bg-brand-alertBg px-2 py-0.5 rounded border border-brand-alertRed/30">
+            +24h EXCEEDED
+          </span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-baseline text-xs">
+<span class="text-brand-textMuted font-medium">Processing Time Expended:</span>
+<span class="font-mono font-bold text-brand-alertRed text-sm">16 Days (Limit: 15 Days)</span>
+</div>
+<div class="w-full h-3 bg-brand-subtle rounded-full overflow-hidden flex border border-brand-border">
+<div class="h-full bg-brand-forest" style="width: 33%" title="Stage 1 &amp; 2: 5 Days"></div>
+<div class="h-full bg-brand-copper" style="width: 60%" title="Stage 3: Standard Window (9 Days)"></div>
+<div class="h-full bg-brand-alertRed animate-pulse" style="width: 7%" title="Overdue: 2 Days"></div>
+</div>
+<div class="flex justify-between text-[10px] text-brand-textMuted font-mono pt-1">
+<span>Day 00 (Submission)</span>
+<span>Day 15 (APH Max)</span>
+<span class="text-brand-alertRed font-bold">Day 16 (Now)</span>
+</div>
+</div>
+<div class="bg-brand-subtle/50 p-3 rounded text-[11px] text-brand-textMuted space-y-1 border border-brand-border">
+<div class="font-bold text-brand-textPrimary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-brand-alertRed">gavel</span>
+            Statutory Regulatory Impact:
+          </div>
+<p>
+            Under Section 6.2 of the Approval Process Handbook, any application surpassing 15 days without approval or rejection notice triggers mandatory audit logging with the AICTE National Grievance Council.
+          </p>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">badge</span>
+<h3 class="text-sm text-brand-forest font-bold">Review Directorate</h3>
+</div>
+<span class="text-[10px] font-mono text-brand-textMuted">NRO-SCR-PANEL-02</span>
+</div>
+<div class="space-y-3">
+<div class="flex items-start gap-3 bg-brand-subtle/60 p-2.5 rounded border border-brand-border">
+<div class="w-8 h-8 rounded bg-brand-forest text-white font-bold text-xs flex items-center justify-center shrink-0">
+              PV
+            </div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="text-xs font-bold text-brand-textPrimary">Dr. P. K. Verma</div>
+<span class="bg-brand-forestLight text-brand-forest text-[9px] font-bold px-1.5 py-0.2 rounded border border-brand-forest/20">PRIMARY</span>
+</div>
+<div class="text-[12px] text-brand-textMuted">Senior Scrutiny Officer (RO Kanpur)</div>
+<div class="font-mono text-[10px] text-brand-textMuted mt-0.5">Assigned: 10 Feb 2026 • Auth: NRO-092</div>
+</div>
+</div>
+
+<div class="flex items-start gap-3 bg-brand-subtle/60 p-2.5 rounded border border-brand-border">
+<div class="w-8 h-8 rounded bg-brand-border text-brand-textPrimary font-bold text-xs flex items-center justify-center shrink-0">
+              MJ
+            </div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="text-xs font-bold text-brand-textPrimary">Er. M. Joshi</div>
+<span class="bg-white text-brand-textMuted text-[9px] font-bold px-1.5 py-0.2 rounded border border-brand-border">LEGAL REVIEW</span>
+</div>
+<div class="text-[12px] text-brand-textMuted">Town Planning Directorate</div>
+<div class="font-mono text-[10px] text-brand-textMuted mt-0.5">Assigned: 12 Feb 2026 • Auth: NRO-214</div>
+</div>
+</div>
+
+<div class="flex items-start gap-3 bg-white p-2.5 rounded border border-dashed border-brand-border">
+<div class="w-8 h-8 rounded bg-brand-subtle text-brand-textMuted font-bold text-xs flex items-center justify-center shrink-0">
+              SS
+            </div>
+<div class="min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="text-xs font-semibold text-brand-textMuted">Prof. S. Sen (IIT Roorkee)</div>
+<span class="bg-brand-subtle text-brand-textMuted text-[9px] font-semibold px-1 rounded">TENTATIVE CONVENER</span>
+</div>
+<div class="text-[12px] text-brand-textMuted">Expert Visit Committee (Inspection Pool)</div>
+<div class="font-mono text-[10px] text-brand-alertRed mt-0.5">Dispatch withheld pending land clearance</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">account_balance</span>
+<h3 class="text-sm text-brand-forest font-bold">Institutional Profile</h3>
+</div>
+<a class="text-xs text-brand-forest font-bold hover:underline" href="#">Full Master Registry</a>
+</div>
+<div class="space-y-2 text-xs">
+<div class="flex justify-between py-1 border-b border-brand-border">
+<span class="text-brand-textMuted">Managing Society:</span>
+<span class="font-medium text-brand-textPrimary text-right">Dronacharya Educational Trust</span>
+</div>
+<div class="flex justify-between py-1 border-b border-brand-border">
+<span class="text-brand-textMuted">Society Reg. No:</span>
+<span class="font-mono text-brand-textPrimary font-semibold">1998/UP/442 (Reg. Meerut)</span>
+</div>
+<div class="flex justify-between py-1 border-b border-brand-border">
+<span class="text-brand-textMuted">Principal-Designate:</span>
+<span class="font-medium text-brand-textPrimary">Dr. Arvind Sharma (M.Tech, Ph.D)</span>
+</div>
+<div class="flex justify-between py-1 border-b border-brand-border">
+<span class="text-brand-textMuted">Official Contact:</span>
+<span class="font-mono text-brand-textPrimary text-[12px]">admin@dronacharya-engg.ac.in</span>
+</div>
+<div class="flex justify-between py-1 border-b border-brand-border">
+<span class="text-brand-textMuted">Campus Phone:</span>
+<span class="font-mono text-brand-textPrimary">+91 120 2329800</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="text-brand-textMuted">Affiliating University:</span>
+<span class="font-medium text-brand-textPrimary">AKTU, Lucknow (Proposed)</span>
+</div>
+</div>
+</div>
+
+<div class="bg-white rounded-lg p-5 border border-brand-border shadow-sm space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">folder</span>
+<h3 class="text-sm text-brand-forest font-bold">Statutory Dossiers</h3>
+</div>
+<span class="font-mono text-[10px] text-brand-textMuted font-bold">3 FILES FILED</span>
+</div>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2.5 bg-brand-subtle/50 rounded border border-brand-border hover:bg-brand-subtle transition-colors cursor-pointer group">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-brand-alertRed text-[20px]">picture_as_pdf</span>
+<div class="min-w-0">
+<div class="text-xs font-bold text-brand-textPrimary truncate group-hover:text-brand-forest transition-colors">
+                  Land_Registry_Deed_Khasra.pdf
+                </div>
+<div class="text-[11px] text-brand-textMuted font-mono">8.4 MB • Uploaded 22 Feb 2026</div>
+</div>
+</div>
+<span class="bg-brand-alertRed text-white font-mono text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0">
+              DEFICIENT
+            </span>
+</div>
+
+<div class="flex items-center justify-between p-2.5 bg-brand-subtle/50 rounded border border-brand-border hover:bg-brand-subtle transition-colors cursor-pointer group">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">picture_as_pdf</span>
+<div class="min-w-0">
+<div class="text-xs font-bold text-brand-textPrimary truncate group-hover:text-brand-forest transition-colors">
+                  Master_Building_Plan_PWD.pdf
+                </div>
+<div class="text-[11px] text-brand-textMuted font-mono">14.2 MB • Uploaded 10 Feb 2026</div>
+</div>
+</div>
+<span class="bg-brand-forestLight text-brand-forest font-mono text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 border border-brand-forest/20">
+              VERIFIED
+            </span>
+</div>
+
+<div class="flex items-center justify-between p-2.5 bg-brand-subtle/50 rounded border border-brand-border hover:bg-brand-subtle transition-colors cursor-pointer group">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-brand-forest text-[20px]">picture_as_pdf</span>
+<div class="min-w-0">
+<div class="text-xs font-bold text-brand-textPrimary truncate group-hover:text-brand-forest transition-colors">
+                  Trust_Bylaws_Registration.pdf
+                </div>
+<div class="text-[11px] text-brand-textMuted font-mono">3.1 MB • Uploaded 10 Feb 2026</div>
+</div>
+</div>
+<span class="bg-brand-forestLight text-brand-forest font-mono text-[9px] font-bold px-1.5 py-0.5 rounded shrink-0 border border-brand-forest/20">
+              VERIFIED
+            </span>
+</div>
+</div>
+<button class="w-full py-2 bg-brand-subtle text-brand-textPrimary text-xs rounded hover:bg-brand-border transition-colors font-semibold flex items-center justify-center gap-1.5 border border-brand-border">
+<span class="material-symbols-outlined text-[16px]">cloud_download</span>
+          Download Digital Application Dossier (.ZIP)
+        </button>
+</div>
+</div>
+</div>
+
+<div class="flex flex-wrap items-center justify-between gap-2 p-3 bg-brand-subtle/50 rounded-lg text-xs text-brand-textMuted border border-brand-border">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-brand-forest text-[16px]">lock_clock</span>
+<span>Session Authenticated: Dr. R. K. Srivastava (Member Secretary - RO Auth) | Machine Node: DEL-NRO-02</span>
+</div>
+<div class="font-mono text-[11px]">
+      Approval Process Handbook Standard: AICTE Regs (Grant of Approvals for Technical Institutions) 2026
+    </div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

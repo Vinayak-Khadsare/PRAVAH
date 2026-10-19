@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PRAVAH — AICTE Approval Operations Platform</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              forest: '#234B3C',
+              'forest-dark': '#18372D',
+              copper: '#B8734E',
+              'copper-light': '#D6926F',
+              ivory: '#F7F4EC',
+              'ivory-dark': '#EDE7D8',
+              white: '#FFFFFF',
+              charcoal: '#252B27',
+              sage: '#E8EDE6',
+              border: '#DCDDD4',
+              warning: '#B7791F',
+              error: '#B84040',
+              success: '#397553'
+            }
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans"', 'Arial', 'sans-serif'],
+            mono: ['"IBM Plex Mono"', 'monospace']
+          },
+          boxShadow: {
+            'subtle-elevated': '0 4px 20px -2px rgba(24, 55, 45, 0.06), 0 1px 3px 0 rgba(24, 55, 45, 0.04)',
+            'glass-panel': '0 12px 36px -4px rgba(24, 55, 45, 0.12), 0 2px 8px 0 rgba(24, 55, 45, 0.04)'
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .glass-surface {
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(220, 221, 212, 0.85);
+    }
+    .glass-surface-dark {
+      background: rgba(24, 55, 45, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(184, 115, 78, 0.25);
+    }
+    .grid-pattern {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(220, 221, 212, 0.35) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(220, 221, 212, 0.35) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-brand-ivory text-brand-charcoal font-sans antialiased selection:bg-brand-copper/20 selection:text-brand-forest">
+<header class="sticky top-0 z-50 border-b border-brand-border/80 bg-brand-ivory/95 backdrop-blur-md transition-all">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded bg-brand-forest flex items-center justify-center text-brand-ivory font-semibold text-sm tracking-wider shadow-sm border border-brand-forest-dark">
+          PR
+        </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-base tracking-tight text-brand-forest leading-none">PRAVAH</span>
+<span class="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-brand-sage text-brand-forest-dark border border-brand-border">TIER-1 OPS</span>
+</div>
+<span class="text-[10px] uppercase font-mono tracking-wider text-brand-charcoal/60 leading-none">AICTE Approval Operations Platform</span>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-8 text-sm font-medium text-brand-charcoal/80">
+<a class="hover:text-brand-forest transition-colors py-1 border-b-2 border-transparent hover:border-brand-copper" href="#platform">Platform</a>
+<a class="hover:text-brand-forest transition-colors py-1 border-b-2 border-transparent hover:border-brand-copper" href="#workflow">Workflow Architecture</a>
+<a class="hover:text-brand-forest transition-colors py-1 border-b-2 border-transparent hover:border-brand-copper" href="#compliance">Compliance &amp; EVC</a>
+<a class="hover:text-brand-forest transition-colors py-1 border-b-2 border-transparent hover:border-brand-copper" href="#intelligence">Pendency Intelligence</a>
+</nav>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 text-xs font-semibold text-brand-forest hover:bg-brand-sage/70 rounded transition-all border border-transparent hover:border-brand-border flex items-center gap-1.5" onclick="document.getElementById('login-modal').classList.remove('hidden')">
+<svg class="w-3.5 h-3.5 text-brand-copper" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Sign In
+        </button>
+<a class="px-4 py-2 text-xs font-semibold bg-brand-forest text-brand-ivory rounded shadow-sm hover:bg-brand-forest-dark transition-all border border-brand-forest-dark flex items-center gap-1.5" href="#workflow">
+<span>Explore Platform</span>
+<svg class="w-3 h-3 text-brand-copper-light" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+</a>
+</div>
+</div>
+</header>
+<section class="relative min-h-[calc(100vh-4rem)] flex items-center border-b border-brand-border bg-gradient-to-b from-brand-ivory via-brand-ivory to-[#F2EFE5] overflow-hidden">
+<div class="absolute inset-0 grid-pattern opacity-60 pointer-events-none"></div>
+<div class="max-w-7xl mx-auto px-6 py-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+<div class="lg:col-span-6 space-y-6">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded bg-brand-sage/80 border border-brand-border text-xs font-mono font-medium text-brand-forest">
+<span class="w-2 h-2 rounded-full bg-brand-copper animate-pulse"></span>
+          AICTE APPROVAL OPERATIONS PLATFORM
+        </div>
+<h1 class="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-brand-charcoal tracking-tight leading-[1.12]">
+          Every approval.<br/>
+          Every deadline.<br/>
+<span class="text-brand-forest">Under control.</span>
+</h1>
+<p class="text-base text-brand-charcoal/80 leading-relaxed max-w-xl font-normal">
+          One unified workspace to manage technical institution application workflows, coordinate Expert Visit Committee inspections, track institutional compliance and surface delays before they become statutory bottlenecks.
+        </p>
+<div class="pt-2 flex flex-wrap items-center gap-4">
+<a class="px-6 py-3 bg-brand-forest text-brand-ivory text-sm font-semibold rounded shadow-sm hover:bg-brand-forest-dark transition-all border border-brand-forest-dark flex items-center gap-2 group" href="#workflow">
+<span>Explore the Platform</span>
+<svg class="w-4 h-4 text-brand-copper-light transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</a>
+<button class="px-6 py-3 bg-white text-brand-forest text-sm font-semibold rounded border border-brand-border hover:border-brand-copper/50 hover:bg-brand-sage/50 transition-all flex items-center gap-2 shadow-sm" onclick="document.getElementById('login-modal').classList.remove('hidden')">
+<span>Sign In</span>
+<span class="text-xs font-mono text-brand-charcoal/50">RO / Auth</span>
+</button>
+</div>
+<p class="text-xs font-mono text-brand-charcoal/60 pt-1 flex items-center gap-2">
+<svg class="w-4 h-4 text-brand-forest" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Designed for transparent workflows, accountable actions and timely compliance.
+        </p>
+<div class="pt-4 grid grid-cols-3 gap-3 border-t border-brand-border/70 max-w-lg">
+<div class="bg-white/80 p-3 rounded border border-brand-border">
+<div class="text-xl font-bold font-mono text-brand-forest">1,428</div>
+<div class="text-[11px] text-brand-charcoal/70 uppercase font-medium">In-Process Apps</div>
+</div>
+<div class="bg-white/80 p-3 rounded border border-brand-border">
+<div class="text-xl font-bold font-mono text-brand-copper">15 Days</div>
+<div class="text-[11px] text-brand-charcoal/70 uppercase font-medium">Scrutiny Ceiling</div>
+</div>
+<div class="bg-white/80 p-3 rounded border border-brand-border">
+<div class="text-xl font-bold font-mono text-brand-forest-dark">6 Zonal</div>
+<div class="text-[11px] text-brand-charcoal/70 uppercase font-medium">Regional Offices</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-6 relative flex items-center justify-center">
+<div class="relative w-full aspect-[4/3] sm:aspect-square max-h-[580px] rounded-xl border border-brand-border bg-gradient-to-tr from-brand-sage/40 via-white/40 to-brand-ivory/20 shadow-subtle-elevated overflow-hidden group">
+<div class="absolute inset-0 w-full h-full bg-transparent" style="display:block;">
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r125/three.min.js"></script>
+<div id="threejs-container-ANIMATION_10" style="width:100%;height:100%"></div>
+<script>
+(function() {
+  const container = document.getElementById('threejs-container-ANIMATION_10');
+  const width = container.clientWidth || window.innerWidth;
+  const height = container.clientHeight || window.innerHeight;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  camera.position.set(0, 1.2, 7.5);
+
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  const ambientLight = new THREE.AmbientLight(0xf7f4ec, 1.4);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+  dirLight.position.set(5, 8, 6);
+  dirLight.castShadow = true;
+  scene.add(dirLight);
+
+  const copperFillLight = new THREE.PointLight(0xb8734e, 2.5, 15);
+  copperFillLight.position.set(-4, -2, 3);
+  scene.add(copperFillLight);
+
+  const greenAccentLight = new THREE.PointLight(0x234b3c, 3.0, 15);
+  greenAccentLight.position.set(3, -3, 2);
+  scene.add(greenAccentLight);
+
+  const mainGroup = new THREE.Group();
+  scene.add(mainGroup);
+
+  const matDossierFront = new THREE.MeshPhongMaterial({ color: 0xffffff, shininess: 40, specular: 0x234b3c });
+  const matDossierCover = new THREE.MeshPhongMaterial({ color: 0x234b3c, shininess: 30 });
+  const matGlass = new THREE.MeshPhongMaterial({ color: 0xf5fbf4, transparent: true, opacity: 0.75, shininess: 90, reflectivity: 0.8 });
+  const matCopper = new THREE.MeshPhongMaterial({ color: 0xb8734e, shininess: 80, specular: 0xffd2b8 });
+  const matNodeActive = new THREE.MeshPhongMaterial({ color: 0x234b3c, shininess: 60 });
+  const matNodeWarning = new THREE.MeshPhongMaterial({ color: 0xb7791f, shininess: 60 });
+  const matNodeSuccess = new THREE.MeshPhongMaterial({ color: 0x397553, shininess: 60 });
+  const matLine = new THREE.LineBasicMaterial({ color: 0xb8734e, transparent: true, opacity: 0.65, linewidth: 2 });
+
+  const dossierGroup = new THREE.Group();
+  mainGroup.add(dossierGroup);
+
+  const binderGeom = new THREE.BoxGeometry(2.8, 3.8, 0.12);
+  const binder = new THREE.Mesh(binderGeom, matDossierCover);
+  binder.position.set(0, 0, -0.1);
+  dossierGroup.add(binder);
+
+  for (let i = 0; i < 4; i++) {
+    const paperGeom = new THREE.BoxGeometry(2.65, 3.65, 0.02);
+    const paper = new THREE.Mesh(paperGeom, matDossierFront);
+    paper.position.set(0.04 * (i % 2 === 0 ? 1 : -1), 0.03 * i, 0.02 * i + 0.02);
+    paper.rotation.z = (i - 1.5) * 0.015;
+    dossierGroup.add(paper);
+  }
+
+  const glassOverlayGeom = new THREE.BoxGeometry(2.7, 3.7, 0.05);
+  const glassOverlay = new THREE.Mesh(glassOverlayGeom, matGlass);
+  glassOverlay.position.set(0, 0, 0.16);
+  dossierGroup.add(glassOverlay);
+
+  const tagGeom = new THREE.BoxGeometry(0.85, 0.28, 0.06);
+  const tag = new THREE.Mesh(tagGeom, matCopper);
+  tag.position.set(0.85, 1.6, 0.22);
+  dossierGroup.add(tag);
+
+  const sealGeom = new THREE.CylinderGeometry(0.35, 0.35, 0.05, 32);
+  sealGeom.rotateX(Math.PI / 2);
+  const seal = new THREE.Mesh(sealGeom, matCopper);
+  seal.position.set(-0.85, 1.35, 0.22);
+  dossierGroup.add(seal);
+
+  const nodeGroup = new THREE.Group();
+  mainGroup.add(nodeGroup);
+
+  const nodePositions = [
+    { pos: new THREE.Vector3(-2.2, 1.4, 0.8), mat: matNodeSuccess, label: "Submission" },
+    { pos: new THREE.Vector3(-1.8, -1.2, 1.1), mat: matNodeActive, label: "Scrutiny" },
+    { pos: new THREE.Vector3(1.9, 1.5, 0.7), mat: matCopper, label: "EVC Visit" },
+    { pos: new THREE.Vector3(2.3, -0.8, 1.0), mat: matNodeWarning, label: "SAC Hearing" },
+    { pos: new THREE.Vector3(0.1, -2.1, 1.2), mat: matNodeSuccess, label: "Authorized LoA" }
+  ];
+
+  const nodeMeshes = [];
+  nodePositions.forEach((n) => {
+    const g = new THREE.Group();
+    g.position.copy(n.pos);
+    const ringGeom = new THREE.TorusGeometry(0.26, 0.03, 16, 32);
+    const ring = new THREE.Mesh(ringGeom, matCopper);
+    g.add(ring);
+    const sphereGeom = new THREE.SphereGeometry(0.16, 24, 24);
+    const sphere = new THREE.Mesh(sphereGeom, n.mat);
+    g.add(sphere);
+    nodeGroup.add(g);
+    nodeMeshes.push(g);
+  });
+
+  const linePoints = nodePositions.map(n => n.pos);
+  const lineGeom = new THREE.BufferGeometry().setFromPoints(linePoints);
+  const pipelineLine = new THREE.Line(lineGeom, matLine);
+  mainGroup.add(pipelineLine);
+
+  const calGeom = new THREE.BoxGeometry(1.2, 1.4, 0.04);
+  const calMesh = new THREE.Mesh(calGeom, matDossierFront);
+  calMesh.position.set(1.8, 0.2, 0.5);
+  calMesh.rotation.set(0.15, -0.3, 0.1);
+  mainGroup.add(calMesh);
+
+  const pinGeom = new THREE.CylinderGeometry(0.06, 0.06, 0.1, 16);
+  const pin = new THREE.Mesh(pinGeom, matCopper);
+  pin.position.set(1.8, 0.78, 0.56);
+  pin.rotation.x = Math.PI / 2;
+  mainGroup.add(pin);
+
+  let targetRotationX = 0.08;
+  let targetRotationY = -0.22;
+  let mouseX = 0;
+  let mouseY = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / (rect.width || 1) - 0.5;
+    const relY = (e.clientY - rect.top) / (rect.height || 1) - 0.5;
+    mouseX = relX * 2;
+    mouseY = relY * 2;
+  });
+
+  window.addEventListener('resize', () => {
+    const newWidth = container.clientWidth || window.innerWidth;
+    const newHeight = container.clientHeight || window.innerHeight;
+    camera.aspect = newWidth / newHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(newWidth, newHeight);
+  });
+
+  let clock = new THREE.Clock();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const t = clock.getElapsedTime();
+    dossierGroup.position.y = Math.sin(t * 1.2) * 0.08;
+    dossierGroup.rotation.z = Math.sin(t * 0.8) * 0.03;
+    calMesh.position.y = 0.2 + Math.cos(t * 1.5) * 0.06;
+    nodeMeshes.forEach((n, i) => {
+      n.position.y += Math.sin(t * 2 + i * 1.2) * 0.0015;
+      n.rotation.y = t * 0.5 + i;
+    });
+    targetRotationY = -0.25 + mouseX * 0.35;
+    targetRotationX = 0.08 - mouseY * 0.25;
+    mainGroup.rotation.y += (targetRotationY - mainGroup.rotation.y) * 0.05;
+    mainGroup.rotation.x += (targetRotationX - mainGroup.rotation.x) * 0.05;
+    renderer.render(scene, camera);
+  }
+
+  animate();
+})();
+</script>
+</div>
+<div class="absolute top-4 left-4 z-20 pointer-events-none">
+<div class="bg-white/90 backdrop-blur-sm border border-brand-border px-3 py-1.5 rounded shadow-sm text-xs flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-brand-forest animate-ping"></span>
+<span class="font-mono font-medium text-brand-forest">LIVE APPLICATION DOSSIER</span>
+<span class="text-[10px] text-brand-charcoal/50">| APP-2026-00124</span>
+</div>
+</div>
+<div class="absolute bottom-4 inset-x-4 z-20 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded bg-white/90 backdrop-blur-md border border-brand-border text-[11px]">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1.5 font-medium text-brand-charcoal"><span class="w-2.5 h-2.5 rounded-full bg-brand-forest"></span> Scrutiny</span>
+<span class="flex items-center gap-1.5 font-medium text-brand-charcoal"><span class="w-2.5 h-2.5 rounded-full bg-brand-copper"></span> EVC Inspection</span>
+<span class="flex items-center gap-1.5 font-medium text-brand-charcoal"><span class="w-2.5 h-2.5 rounded-full bg-brand-warning"></span> SAC Hearing</span>
+<span class="flex items-center gap-1.5 font-medium text-brand-charcoal"><span class="w-2.5 h-2.5 rounded-full bg-brand-success"></span> Authorized LoA</span>
+</div>
+<div class="font-mono text-[10px] text-brand-charcoal/60">Interactive 3D • Drag / Hover to inspect</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="py-8 bg-brand-sage/50 border-b border-brand-border">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+<div>
+<span class="text-xs uppercase font-mono tracking-wider text-brand-copper font-semibold">Standard Statutory Progression Cycle</span>
+<h2 class="text-lg font-bold text-brand-charcoal">National Approval Pathway</h2>
+</div>
+<p class="text-xs text-brand-charcoal/60 max-w-md">*Note: Processing paths vary according to statutory categories (New Institution, EoA, Intake Expansion, Closure).</p>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+<div class="bg-white p-3.5 rounded border border-brand-border flex items-center gap-3"><div class="w-7 h-7 rounded bg-brand-forest text-brand-ivory flex items-center justify-center font-mono font-bold text-xs">01</div><div><div class="text-xs font-bold text-brand-charcoal">Submission</div><div class="text-[10px] text-brand-charcoal/60">Digital Intake &amp; Fees</div></div></div>
+<div class="bg-white p-3.5 rounded border border-brand-border flex items-center gap-3"><div class="w-7 h-7 rounded bg-brand-forest text-brand-ivory flex items-center justify-center font-mono font-bold text-xs">02</div><div><div class="text-xs font-bold text-brand-charcoal">Scrutiny</div><div class="text-[10px] text-brand-charcoal/60">Legal &amp; Cadre Audit</div></div></div>
+<div class="bg-white p-3.5 rounded border border-brand-border flex items-center gap-3"><div class="w-7 h-7 rounded bg-brand-copper text-brand-ivory flex items-center justify-center font-mono font-bold text-xs">03</div><div><div class="text-xs font-bold text-brand-charcoal">EVC (If Req.)</div><div class="text-[10px] text-brand-charcoal/60">Physical Campus Audit</div></div></div>
+<div class="bg-white p-3.5 rounded border border-brand-border flex items-center gap-3"><div class="w-7 h-7 rounded bg-brand-warning text-brand-ivory flex items-center justify-center font-mono font-bold text-xs">04</div><div><div class="text-xs font-bold text-brand-charcoal">Committee (SAC)</div><div class="text-[10px] text-brand-charcoal/60">Appeals &amp; Rectifications</div></div></div>
+<div class="bg-white p-3.5 rounded border border-brand-border flex items-center gap-3"><div class="w-7 h-7 rounded bg-brand-success text-brand-ivory flex items-center justify-center font-mono font-bold text-xs">05</div><div><div class="text-xs font-bold text-brand-charcoal">Decision</div><div class="text-[10px] text-brand-charcoal/60">LoA / Council Sign-off</div></div></div>
+</div>
+</div>
+</section>
+<section class="py-20 max-w-7xl mx-auto px-6" id="platform">
+<div class="max-w-2xl mb-14">
+<span class="text-xs uppercase font-mono tracking-wider text-brand-forest font-semibold">Institutional Operations</span>
+<h2 class="text-3xl font-bold text-brand-charcoal tracking-tight mt-1">Engineered for Public Sector Rigor</h2>
+<p class="text-sm text-brand-charcoal/70 mt-2">A resilient digital backbone handling high-stakes regulatory processing across technical colleges, polytechnics, and university faculties.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="bg-white p-6 rounded-lg border border-brand-border hover:border-brand-copper/60 transition-all shadow-sm hover:shadow-subtle-elevated group">
+<div class="w-10 h-10 rounded bg-brand-sage flex items-center justify-center text-brand-forest mb-4 group-hover:bg-brand-forest group-hover:text-brand-ivory transition-colors">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-base font-bold text-brand-charcoal">Approval Workflow Automation</h3>
+<p class="text-xs text-brand-charcoal/70 mt-2 leading-relaxed">Enforce multi-tier scrutiny protocols, automated Form-B deficiency issuance, and strict 15-day regulatory statutory processing ceilings.</p>
+<div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-forest font-medium flex items-center gap-1"><span>Explore Scrutiny Engine</span> →</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-brand-border hover:border-brand-copper/60 transition-all shadow-sm hover:shadow-subtle-elevated group">
+<div class="w-10 h-10 rounded bg-brand-sage flex items-center justify-center text-brand-forest mb-4 group-hover:bg-brand-forest group-hover:text-brand-ivory transition-colors">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-base font-bold text-brand-charcoal">EVC Scheduling &amp; Coordination</h3>
+<p class="text-xs text-brand-charcoal/70 mt-2 leading-relaxed">Coordinate Expert Visit Committee panellists, geo-fenced campus inspection slots, and automated roster availability checking under RO auth.</p>
+<div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-copper font-medium flex items-center gap-1"><span>Inspection Workspace</span> →</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-brand-border hover:border-brand-copper/60 transition-all shadow-sm hover:shadow-subtle-elevated group">
+<div class="w-10 h-10 rounded bg-brand-sage flex items-center justify-center text-brand-forest mb-4 group-hover:bg-brand-forest group-hover:text-brand-ivory transition-colors">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-base font-bold text-brand-charcoal">Institutional Compliance</h3>
+<p class="text-xs text-brand-charcoal/70 mt-2 leading-relaxed">Monitor 30-year registered land lease deeds, pending fire NOCs, cadre-ratio balances, and statutory FDR deposits with verification states.</p>
+<div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-forest font-medium flex items-center gap-1"><span>Registry Monitoring</span> →</div>
+</div>
+<div class="bg-white p-6 rounded-lg border border-brand-border hover:border-brand-copper/60 transition-all shadow-sm hover:shadow-subtle-elevated group">
+<div class="w-10 h-10 rounded bg-brand-sage flex items-center justify-center text-brand-forest mb-4 group-hover:bg-brand-forest group-hover:text-brand-ivory transition-colors">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+<h3 class="text-base font-bold text-brand-charcoal">Early-Warning Intelligence</h3>
+<p class="text-xs text-brand-charcoal/70 mt-2 leading-relaxed">Surface impending SLA breaches, unresolved stage dependencies, and unverified prerequisites before delays freeze administrative movement.</p>
+<div class="mt-4 pt-3 border-t border-brand-border/60 text-[11px] font-mono text-brand-forest font-medium flex items-center gap-1"><span>Dependency Graph</span> →</div>
+</div>
+</div>
+</section>
+<section class="py-16 bg-white border-y border-brand-border" id="workflow">
+<div class="max-w-7xl mx-auto px-6">
+<div class="text-center max-w-2xl mx-auto mb-12">
+<span class="text-xs uppercase font-mono tracking-wider text-brand-copper font-semibold">Regulatory Decision Architecture</span>
+<h2 class="text-3xl font-bold text-brand-charcoal tracking-tight mt-1">Answering the 3 Statutory Questions</h2>
+<p class="text-sm text-brand-charcoal/70 mt-2">Every screen in PRAVAH is designed to eliminate ambiguity for scrutiny officers, regional directors, and appellate committees.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="bg-brand-ivory p-6 rounded-lg border border-brand-border">
+<div class="text-xs font-mono font-bold text-brand-forest mb-2">QUESTION 01</div>
+<h4 class="text-base font-bold text-brand-charcoal mb-2">What is pending?</h4>
+<p class="text-xs text-brand-charcoal/70 leading-relaxed">Exact missing affidavits, deficient land titles, biometric faculty verification gaps, or unsubmitted FDR certificates identified down to specific folio numbers.</p>
+</div>
+<div class="bg-brand-ivory p-6 rounded-lg border border-brand-border">
+<div class="text-xs font-mono font-bold text-brand-copper mb-2">QUESTION 02</div>
+<h4 class="text-base font-bold text-brand-charcoal mb-2">Why is it blocked?</h4>
+<p class="text-xs text-brand-charcoal/70 leading-relaxed">Specific regulatory rule references (e.g. AICTE APH Section 2.4.1), timestamped scrutiny observations, and pending cure window durations.</p>
+</div>
+<div class="bg-brand-ivory p-6 rounded-lg border border-brand-border">
+<div class="text-xs font-mono font-bold text-brand-forest-dark mb-2">QUESTION 03</div>
+<h4 class="text-base font-bold text-brand-charcoal mb-2">What action happens next?</h4>
+<p class="text-xs text-brand-charcoal/70 leading-relaxed">Role-aware statutory interventions: issue Form-B deficiency notice, grant 48-hour cure notice, schedule EVC inspection, or escalate to SAC hearing.</p>
+</div>
+</div>
+</div>
+</section>
+<footer class="bg-brand-forest-dark text-brand-ivory py-12 border-t border-brand-forest">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-xs">
+<div>
+<div class="flex items-center gap-2 mb-3">
+<div class="w-7 h-7 rounded bg-brand-forest flex items-center justify-center font-bold text-brand-ivory border border-brand-copper">PR</div>
+<span class="font-bold text-sm tracking-wide text-brand-ivory">PRAVAH</span>
+</div>
+<p class="text-brand-ivory/60 leading-relaxed">AICTE Institutional Approval Operations Platform. Built for regulatory accuracy, audit accountability, and seamless institutional coordination.</p>
+</div>
+<div>
+<h5 class="font-mono uppercase font-bold text-brand-copper mb-3">Regional Directorates</h5>
+<ul class="space-y-1.5 text-brand-ivory/70 font-mono text-[11px]">
+<li>Northern Regional Office (NRO) - Kanpur</li>
+<li>Western Regional Office (WRO) - Mumbai</li>
+<li>Southern Regional Office (SRO) - Chennai</li>
+<li>Eastern Regional Office (ERO) - Kolkata</li>
+<li>North-Western Office (NWRO) - Chandigarh</li>
+</ul>
+</div>
+<div>
+<h5 class="font-mono uppercase font-bold text-brand-copper mb-3">Statutory Protocols</h5>
+<ul class="space-y-1.5 text-brand-ivory/70">
+<li>Strict 15-day scrutiny ceiling enforcement</li>
+<li>Cryptographic SHA-256 state audit logs</li>
+<li>Geofenced EVC panel reporting</li>
+<li>Standing Appeals Committee (SAC) Escalations</li>
+</ul>
+</div>
+<div>
+<h5 class="font-mono uppercase font-bold text-brand-copper mb-3">Operational Security</h5>
+<div class="p-3 rounded bg-brand-forest border border-brand-border/20 text-brand-ivory/80 space-y-1">
+<div class="font-bold text-brand-ivory">Authorized Administrative Access</div>
+<p class="text-[11px] text-brand-ivory/60">Restricted to gazetted approval committee officers, zonal administrators, and verified institutional representatives.</p>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 mt-8 pt-6 border-t border-brand-forest/60 flex flex-col sm:flex-row items-center justify-between text-[11px] text-brand-ivory/50">
+<div>Demonstration Prototype Environment • AICTE Approval Process Handbook Compliance</div>
+<div class="font-mono">PRAVAH-BUILD-AY2026-NRO • v2.4.1 Gov-Secure</div>
+</div>
+</footer>
+<div class="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-6 bg-brand-forest-dark/85 backdrop-blur-md transition-all hidden" id="login-modal">
+<button class="absolute top-5 right-5 z-50 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all" onclick="document.getElementById('login-modal').classList.add('hidden')">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="w-full max-w-5xl h-full sm:h-[640px] rounded-none sm:rounded-2xl overflow-hidden shadow-glass-panel grid grid-cols-1 md:grid-cols-12 border border-brand-border/40 bg-white">
+<div class="hidden md:flex md:col-span-6 bg-gradient-to-br from-brand-forest-dark via-brand-forest to-[#0e221b] text-brand-ivory p-10 flex-col justify-between relative overflow-hidden">
+<div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand-copper/10 blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-brand-forest/30 blur-3xl pointer-events-none"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded bg-brand-ivory text-brand-forest font-bold flex items-center justify-center text-sm shadow">PR</div>
+<div>
+<div class="font-bold text-base tracking-tight text-white">PRAVAH</div>
+<div class="text-[10px] font-mono text-brand-copper-light">STATUTORY OPERATIONS GATEWAY</div>
+</div>
+</div>
+</div>
+<div class="relative z-10 space-y-4 my-auto">
+<div class="p-5 rounded-xl glass-surface-dark text-white space-y-3">
+<div class="flex items-center justify-between text-xs font-mono">
+<span class="text-brand-copper-light">PID: 1-4392811</span>
+<span class="px-2 py-0.5 rounded bg-brand-copper text-white text-[10px] font-semibold">STAGE 03: RE-SCRUTINY</span>
+</div>
+<div class="font-bold text-sm text-white">Dronacharya Institute of Engineering &amp; Technology</div>
+<div class="text-xs text-brand-ivory/70">Knowledge Park III, Greater Noida (NRO - Kanpur)</div>
+<div class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
+<span class="text-brand-ivory/60">Land Deed Audit: Deficient</span>
+<span class="text-brand-warning">Cure Window: 24h</span>
+</div>
+</div>
+<div class="p-4 rounded-xl bg-white/5 border border-white/10 text-xs text-brand-ivory/80 flex items-center gap-3">
+<div class="w-2.5 h-2.5 rounded-full bg-brand-copper shrink-0 animate-ping"></div>
+<span>Connected to Northern Regional Office Scrutiny Directorate.</span>
+</div>
+</div>
+<div class="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-[11px] text-brand-ivory/60 font-mono">
+<span>SECURE RO AUTHENTICATION</span>
+<span>SHA-256 TAMPER-CHECK</span>
+</div>
+</div>
+<div class="col-span-1 md:col-span-6 bg-brand-ivory p-8 sm:p-12 flex flex-col justify-center relative">
+<div class="max-w-md w-full mx-auto space-y-6">
+<div>
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-brand-sage text-[11px] font-mono font-medium text-brand-forest mb-2">
+<span class="w-1.5 h-1.5 rounded-full bg-brand-copper"></span>
+              PORTAL SESSION AUTHENTICATION
+            </div>
+<h3 class="text-2xl font-bold text-brand-charcoal tracking-tight">Welcome back</h3>
+<p class="text-xs text-brand-charcoal/70 mt-1">Sign in to your approval operations workspace.</p>
+</div>
+<form class="space-y-4" onsubmit="event.preventDefault(); window.location.href='/dashboard';">
+<div>
+<label class="block text-xs font-semibold text-brand-charcoal mb-1" for="user-id">Official User ID / Email</label>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 rounded bg-white border border-brand-border focus:border-brand-forest focus:ring-1 focus:ring-brand-forest text-xs font-medium text-brand-charcoal outline-none transition-all placeholder:text-brand-charcoal/40" id="user-id" placeholder="e.g. ro.kanpur@aicte-india.org" required="" type="text" value="r.srivastava@aicte-india.org"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-brand-charcoal/40">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-1">
+<label class="text-xs font-semibold text-brand-charcoal" for="password">Password</label>
+<a class="text-[11px] font-medium text-brand-copper hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<input class="w-full px-3.5 py-2.5 rounded bg-white border border-brand-border focus:border-brand-forest focus:ring-1 focus:ring-brand-forest text-xs font-medium text-brand-charcoal outline-none transition-all" id="password" placeholder="Enter authorized credential" required="" type="password" value="••••••••••••••••"/>
+<button class="absolute inset-y-0 right-0 pr-3 flex items-center text-brand-charcoal/40 hover:text-brand-forest" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-brand-charcoal mb-1">Administrative Office</label>
+<select class="w-full px-3.5 py-2.5 rounded bg-white border border-brand-border focus:border-brand-forest text-xs font-medium text-brand-charcoal outline-none">
+<option selected="">Northern Regional Office (NRO) - Kanpur</option>
+<option>Western Regional Office (WRO) - Mumbai</option>
+<option>Southern Regional Office (SRO) - Chennai</option>
+<option>Eastern Regional Office (ERO) - Kolkata</option>
+<option>Central Bureau / Member Secretary Desk</option>
+</select>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<input checked="" class="w-4 h-4 rounded border-brand-border text-brand-forest focus:ring-brand-forest" id="remember" type="checkbox"/>
+<label class="text-xs text-brand-charcoal/80 select-none" for="remember">Keep session active on this authorized terminal</label>
+</div>
+<button class="w-full py-3 bg-brand-forest hover:bg-brand-forest-dark text-white text-xs font-bold rounded shadow-sm transition-all border border-brand-forest-dark flex items-center justify-center gap-2 group" type="submit">
+<span>Sign In to Approval Operations</span>
+<svg class="w-3.5 h-3.5 text-brand-copper-light transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+</form>
+<div class="pt-4 border-t border-brand-border/70 text-center">
+<span class="text-[11px] font-mono text-brand-charcoal/50">Authorized access only • Strictly audited per AICTE Act</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
