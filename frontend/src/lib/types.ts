@@ -174,7 +174,7 @@ export interface AlertNotification {
 export interface UserSession {
   userId: string;
   name: string;
-  role: 'Member Secretary (RO Auth)' | 'Senior Scrutiny Officer' | 'Town Planning Officer' | 'EVC Convener' | 'Institution Admin';
+  role: 'Member Secretary (RO Auth)' | 'Senior Scrutiny Officer' | 'Town Planning Officer' | 'EVC Convener' | 'Institution Admin' | 'CAG Regulatory Auditor' | 'AICTE Administrator';
   regionalOffice: string;
   initials: string;
 }

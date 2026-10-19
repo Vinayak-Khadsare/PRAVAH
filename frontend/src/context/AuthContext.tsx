@@ -2,10 +2,10 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserSession } from '@/lib/types';
-import { currentUser } from '@/lib/mockData';
 
 interface AuthContextType {
   user: UserSession | null;
+  token: string | null;
   isAuthenticated: boolean;
   selectedOffice: string;
   setSelectedOffice: (office: string) => void;
@@ -15,45 +15,98 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserSession | null>(currentUser);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [user, setUser] = useState<UserSession | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [selectedOffice, setSelectedOffice] = useState<string>('Northern Regional Office (NRO) - Kanpur');
 
   useEffect(() => {
     // Check saved session in localStorage
-    const saved = localStorage.getItem('pravah_user');
-    if (saved) {
+    const savedToken = localStorage.getItem('pravah_token');
+    const savedUser = localStorage.getItem('pravah_user');
+
+    if (savedToken && savedUser) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(savedUser);
         setUser(parsed);
+        setToken(savedToken);
         setIsAuthenticated(true);
         if (parsed.regionalOffice) setSelectedOffice(parsed.regionalOffice);
+
+        // Verify token with backend /auth/me
+        fetch(`${API_BASE_URL}/auth/me`, {
+          headers: { 'Authorization': `Bearer ${savedToken}` }
+        }).then(res => {
+          if (!res.ok) {
+            // Expired or tampered token: clean up
+            localStorage.removeItem('pravah_token');
+            localStorage.removeItem('pravah_user');
+            setUser(null);
+            setToken(null);
+            setIsAuthenticated(false);
+          }
+        }).catch(() => {
+          // Keep session if backend is temporarily unreachable
+        });
       } catch {
-        // ignore
+        localStorage.removeItem('pravah_token');
+        localStorage.removeItem('pravah_user');
       }
     }
   }, []);
 
-  const login = async (email: string, _pass: string, office: string): Promise<boolean> => {
-    const newUser: UserSession = {
-      userId: email,
-      name: email.includes('verma') ? 'Dr. P. K. Verma' : 'Dr. R. K. Srivastava',
-      role: email.includes('verma') ? 'Senior Scrutiny Officer' : 'Member Secretary (RO Auth)',
-      regionalOffice: office,
-      initials: email.includes('verma') ? 'PV' : 'RS',
-    };
-    setUser(newUser);
-    setIsAuthenticated(true);
-    setSelectedOffice(office);
-    localStorage.setItem('pravah_user', JSON.stringify(newUser));
-    return true;
+  const login = async (email: string, pass: string, office: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password: pass, office })
+      });
+
+      if (!res.ok) {
+        return false;
+      }
+
+      const data = await res.json();
+      const sessionUser: UserSession = {
+        userId: data.user.email,
+        name: data.user.name,
+        role: data.user.role === 'regional_officer' ? 'Member Secretary (RO Auth)' :
+              data.user.role === 'scrutiny_officer' ? 'Senior Scrutiny Officer' :
+              data.user.role === 'institution_rep' ? 'Institution Admin' :
+              data.user.role === 'evc_member' ? 'EVC Convener' :
+              data.user.role === 'auditor' ? 'CAG Regulatory Auditor' : 'Member Secretary (RO Auth)',
+        regionalOffice: data.user.regionalOffice || office,
+        initials: data.user.initials,
+      };
+
+      setUser(sessionUser);
+      setToken(data.access_token);
+      setIsAuthenticated(true);
+      setSelectedOffice(office);
+
+      localStorage.setItem('pravah_token', data.access_token);
+      localStorage.setItem('pravah_user', JSON.stringify(sessionUser));
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const logout = () => {
+    if (token) {
+      fetch(`${API_BASE_URL}/auth/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).catch(() => {});
+    }
     setUser(null);
+    setToken(null);
     setIsAuthenticated(false);
+    localStorage.removeItem('pravah_token');
     localStorage.removeItem('pravah_user');
   };
 
@@ -79,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         isAuthenticated,
         selectedOffice,
         setSelectedOffice,

@@ -3,19 +3,29 @@ import { sampleApplications, sampleEvcSchedules, sampleComplianceRecords, sample
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
-// In-browser mock storage fallback for resilient demo execution
-let localApplications: ApplicationRecord[] = [...sampleApplications];
-let localAlerts: AlertNotification[] = [...sampleAlerts];
-let localEvc: EvcScheduleRecord[] = [...sampleEvcSchedules];
-let localCompliance: ComplianceTrackingRecord[] = [...sampleComplianceRecords];
+function getAuthHeaders(): HeadersInit {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('pravah_token');
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
 
 export const pravahApi = {
   async getMetrics() {
     try {
-      const res = await fetch(`${API_BASE_URL}/metrics`, { cache: 'no-store' });
+      const res = await fetch(`${API_BASE_URL}/workflow/metrics`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
       if (res.ok) return await res.json();
     } catch {
-      // fallback
+      // Backend connectivity fallback
     }
     return dashboardMetrics;
   },
@@ -23,17 +33,20 @@ export const pravahApi = {
   async getApplications(filterZone?: string, search?: string, status?: string): Promise<ApplicationRecord[]> {
     try {
       const params = new URLSearchParams();
-      if (filterZone) params.append('zone', filterZone);
+      if (filterZone && filterZone !== 'All') params.append('zone', filterZone);
       if (search) params.append('q', search);
-      if (status) params.append('status', status);
+      if (status && status !== 'all') params.append('status', status);
 
-      const res = await fetch(`${API_BASE_URL}/applications?${params.toString()}`, { cache: 'no-store' });
+      const res = await fetch(`${API_BASE_URL}/applications?${params.toString()}`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
       if (res.ok) return await res.json();
     } catch {
-      // fallback to mock
+      // Fallback only if backend offline
     }
 
-    let results = [...localApplications];
+    let results = [...sampleApplications];
     if (filterZone && filterZone !== 'All') {
       results = results.filter(a => a.regionalOffice.includes(filterZone));
     }
@@ -54,16 +67,35 @@ export const pravahApi = {
 
   async getApplicationById(id: string): Promise<ApplicationRecord | null> {
     try {
-      const res = await fetch(`${API_BASE_URL}/applications/${id}`, { cache: 'no-store' });
-      if (res.ok) return await res.json();
+      const res = await fetch(`${API_BASE_URL}/applications/${id}`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      if (res.status === 404) {
+        return null;
+      }
     } catch {
-      // fallback
+      // Offline fallback
     }
-    const found = localApplications.find(a => a.id === id || a.pid === id);
-    return found || sampleApplications[0];
+    const found = sampleApplications.find(a => a.id === id || a.pid === id);
+    return found || null;
   },
 
   async recordObservation(appId: string, observation: string, officerName: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/observations`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ observation, officerName })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+
     const newLog: AuditLogEvent = {
       id: `log-${Date.now()}`,
       title: 'Scrutiny Officer Observation Recorded',
@@ -72,143 +104,171 @@ export const pravahApi = {
       actor: `${officerName} | Manual Scrutiny Entry`,
       type: 'action',
     };
-
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      app.auditLog.unshift(newLog);
-    }
-    return { success: true, log: newLog };
+    return { success: true, event: newLog };
   },
 
   async grantGraceNotice(appId: string, hours: number = 48) {
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      const newLog: AuditLogEvent = {
-        id: `log-${Date.now()}`,
-        title: `Statutory ${hours}-Hour Cure Extension Granted`,
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-        description: `Member Secretary invoked delegated regulatory prerogative granting ${hours} hours extension to clear Land Encumbrance seals.`,
-        actor: 'Dr. R. K. Srivastava (Member Secretary - RO Auth)',
-        type: 'decision',
-        sha256: '99AC712B00E4F9',
-      };
-      app.auditLog.unshift(newLog);
-      if (app.criticalBlocker) {
-        app.criticalBlocker.question2_whyBlocked += ` [Grace notice active: ${hours}h cure window granted]`;
-      }
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/grace-notice`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ hours, reason: `Statutory ${hours}-Hour Extension` })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
-    return { success: true, message: `${hours}-hour grace window recorded and audit logged.` };
+    return { success: true, message: `${hours}-hour grace window recorded.` };
   },
 
   async issueDeficiencyFormB(appId: string, reason: string) {
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      app.status = 'deficiency_issued';
-      app.currentStageNumber = 3;
-      app.currentStageLabel = 'Stage 03 (Re-Scrutiny & Cure)';
-      const newLog: AuditLogEvent = {
-        id: `log-${Date.now()}`,
-        title: 'Form-B Formal Regulatory Deficiency Issued',
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-        description: `Deficiency notice served to institution: ${reason}. Mandatory 7-day cure window triggered.`,
-        actor: 'Dr. P. K. Verma (Senior Scrutiny Officer)',
-        type: 'action',
-      };
-      app.auditLog.unshift(newLog);
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/deficiency-form-b`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ reason })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
     return { success: true };
   },
 
   async escalateToSac(appId: string, reason: string) {
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      app.status = 'sac_escalated';
-      app.currentStageNumber = 5;
-      app.currentStageLabel = 'Stage 05 (Standing Hearing / SAC)';
-      const newLog: AuditLogEvent = {
-        id: `log-${Date.now()}`,
-        title: 'Escalated to Standing Appeals Committee (SAC)',
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-        description: `Case referred to appellate committee: ${reason}. Dossier transferred to National Appeals Registry.`,
-        actor: 'Dr. R. K. Srivastava (Member Secretary - RO Auth)',
-        type: 'decision',
-        sha256: 'FA7180B992CD01',
-      };
-      app.auditLog.unshift(newLog);
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/escalate-sac`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ reason })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
     return { success: true };
   },
 
-  async acceptRectification(appId: string, defId: string) {
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      const def = app.deficiencies.find(d => d.id === defId);
-      if (def) {
-        def.status = 'compliant';
-        def.isCritical = false;
-      }
-      const newLog: AuditLogEvent = {
-        id: `log-${Date.now()}`,
-        title: 'Rectification Verified & Approved',
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-        description: `Scrutiny officer verified Sub-Registrar stamp clearance. Blocker condition resolved.`,
-        actor: 'Dr. P. K. Verma (Senior Scrutiny Officer)',
-        type: 'action',
-      };
-      app.auditLog.unshift(newLog);
-
-      // Check if all critical blockers are resolved
-      const hasCritical = app.deficiencies.some(d => d.isCritical && d.status === 'deficient');
-      if (!hasCritical) {
-        app.criticalBlocker = undefined;
-        app.status = 'in_scrutiny';
-      }
+  async acceptRectification(appId: string, defRefCode: string, rectificationDetails: string = "Sub-Registrar verified stamp submitted") {
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/rectifications`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ deficiencyRefCode: defRefCode, rectificationDetails })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
     return { success: true };
   },
 
   async recommendForEvc(appId: string) {
-    const app = localApplications.find(a => a.id === appId);
-    if (app) {
-      app.currentStageNumber = 4;
-      app.currentStageLabel = 'Stage 04 (EVC Inspection)';
-      app.status = 'evc_scheduled';
-      const newLog: AuditLogEvent = {
-        id: `log-${Date.now()}`,
-        title: 'Recommended for Expert Visit Committee (EVC)',
-        timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-        description: 'Scrutiny requirements fulfilled. Inspection team dispatch unlocked.',
-        actor: 'Dr. P. K. Verma (Senior Scrutiny Officer)',
-        type: 'decision',
-      };
-      app.auditLog.unshift(newLog);
+    try {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/recommend-evc`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({})
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
     return { success: true };
+  },
+
+  async simulateScenario(appId: string, action: string, parameterValue?: number) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/workflow/simulate`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ applicationId: appId, action, parameterValue })
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+    return null;
   },
 
   async getEvcSchedules(): Promise<EvcScheduleRecord[]> {
-    return localEvc;
+    try {
+      const res = await fetch(`${API_BASE_URL}/evc`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+    return sampleEvcSchedules;
+  },
+
+  async dispatchEvc(evcId: string) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/evc/${evcId}/dispatch`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+    return { success: true, message: `Dispatched token for ${evcId}` };
   },
 
   async getComplianceRecords(): Promise<ComplianceTrackingRecord[]> {
-    return localCompliance;
+    try {
+      const res = await fetch(`${API_BASE_URL}/compliance`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+    return sampleComplianceRecords;
   },
 
   async getAlerts(): Promise<AlertNotification[]> {
-    return localAlerts;
+    try {
+      const res = await fetch(`${API_BASE_URL}/alerts`, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
+    return sampleAlerts;
   },
 
   async acknowledgeAlert(alertId: string) {
-    const a = localAlerts.find(item => item.id === alertId);
-    if (a) {
-      a.resolved = true;
+    try {
+      const res = await fetch(`${API_BASE_URL}/alerts/${alertId}/acknowledge`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
     }
     return { success: true };
   },
 
-  async getAuditLogs(): Promise<AuditLogEvent[]> {
+  async getAuditLogs(appId?: string): Promise<AuditLogEvent[]> {
+    try {
+      const url = appId ? `${API_BASE_URL}/audit?app_id=${appId}` : `${API_BASE_URL}/audit`;
+      const res = await fetch(url, {
+        headers: getAuthHeaders(),
+        cache: 'no-store'
+      });
+      if (res.ok) return await res.json();
+    } catch {
+      // Offline
+    }
     const allLogs: AuditLogEvent[] = [];
-    localApplications.forEach(app => {
+    sampleApplications.forEach(app => {
       allLogs.push(...app.auditLog);
     });
     return allLogs;
