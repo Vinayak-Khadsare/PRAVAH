@@ -130,27 +130,28 @@ class DatabaseManager:
         return list(self.alerts.values())
 
     async def connect(self):
-        """Establish MongoDB Atlas connection or initialize persistent demo store."""
+        """Establish MongoDB connection (Local or Atlas) or initialize persistent demo store."""
         # Initialize in-memory repository with deepcopy
         self._init_memory_store()
 
         if settings.MONGODB_URI and not settings.MONGODB_URI.startswith("mongodb+srv://<username>"):
             try:
-                logger.info("Connecting to MongoDB Atlas cluster...")
+                target_desc = "Local MongoDB" if ("127.0.0.1" in settings.MONGODB_URI or "localhost" in settings.MONGODB_URI) else "MongoDB Atlas"
+                logger.info(f"Connecting to {target_desc} ({settings.DATABASE_NAME})...")
                 self.client = AsyncIOMotorClient(settings.MONGODB_URI, serverSelectionTimeoutMS=3000)
                 await self.client.admin.command('ping')
                 self.db = self.client[settings.DATABASE_NAME]
                 self.is_atlas_connected = True
-                logger.info(f"Connected to MongoDB Atlas: {settings.DATABASE_NAME}")
+                logger.info(f"Connected to {target_desc}: {settings.DATABASE_NAME}")
 
                 # Ensure indexes and seed initial records idempotently
                 await self._create_indexes()
                 await self._seed_atlas()
             except Exception as e:
-                logger.warning(f"MongoDB Atlas connection failed ({e}). Operating in explicit local fallback mode.")
+                logger.warning(f"MongoDB connection failed ({e}). Operating in explicit local fallback mode.")
                 self.is_atlas_connected = False
         else:
-            logger.info("No active MongoDB Atlas URI provided. Running in explicit local demonstration persistence mode.")
+            logger.info("No active MongoDB URI provided. Running in explicit local demonstration persistence mode.")
             self.is_atlas_connected = False
 
     def _init_memory_store(self):
@@ -173,8 +174,8 @@ class DatabaseManager:
                 self.documents[doc["id"]] = {**doc, "applicationId": app["id"], "institution": app["institutionName"]}
 
     async def _create_indexes(self):
-        """Create database indexes idempotently on MongoDB Atlas."""
-        if not self.db:
+        """Create database indexes idempotently on MongoDB."""
+        if self.db is None:
             return
         try:
             await self.db.users.create_index("email", unique=True)
@@ -190,34 +191,41 @@ class DatabaseManager:
             await self.db.alerts.create_index("applicationId")
             await self.db.audit_events.create_index("id", unique=True)
             await self.db.audit_events.create_index("timestamp")
-            logger.info("MongoDB Atlas indexes verified/created successfully.")
+            logger.info("MongoDB indexes verified/created successfully.")
         except Exception as e:
             logger.warning(f"Error creating indexes: {e}")
 
     async def _seed_atlas(self):
         """Idempotently seed initial documents if collections are empty."""
-        if not self.db:
+        if self.db is None:
             return
         try:
             if await self.db.users.count_documents({}) == 0:
-                await self.db.users.insert_many(INITIAL_USERS)
+                await self.db.users.insert_many(copy.deepcopy(INITIAL_USERS))
             if await self.db.applications.count_documents({}) == 0:
-                await self.db.applications.insert_many(INITIAL_APPLICATIONS)
+                await self.db.applications.insert_many(copy.deepcopy(INITIAL_APPLICATIONS))
             if await self.db.evc.count_documents({}) == 0:
-                await self.db.evc.insert_many(INITIAL_EVC)
+                await self.db.evc.insert_many(copy.deepcopy(INITIAL_EVC))
             if await self.db.compliance.count_documents({}) == 0:
-                await self.db.compliance.insert_many(INITIAL_COMPLIANCE)
+                await self.db.compliance.insert_many(copy.deepcopy(INITIAL_COMPLIANCE))
             if await self.db.alerts.count_documents({}) == 0:
-                await self.db.alerts.insert_many(INITIAL_ALERTS)
+                await self.db.alerts.insert_many(copy.deepcopy(INITIAL_ALERTS))
             if await self.db.policies.count_documents({}) == 0:
-                await self.db.policies.insert_many(INITIAL_POLICIES)
-            logger.info("MongoDB Atlas initial seed check complete.")
+                await self.db.policies.insert_many(copy.deepcopy(INITIAL_POLICIES))
+            if await self.db.audit_events.count_documents({}) == 0:
+                initial_audit_events = []
+                for app in INITIAL_APPLICATIONS:
+                    for log in app.get("auditLog", []):
+                        initial_audit_events.append({**copy.deepcopy(log), "applicationId": app["id"]})
+                if initial_audit_events:
+                    await self.db.audit_events.insert_many(initial_audit_events)
+            logger.info("MongoDB initial collection seed check complete.")
         except Exception as e:
-            logger.warning(f"Error seeding MongoDB Atlas: {e}")
+            logger.warning(f"Error seeding MongoDB: {e}")
 
     async def disconnect(self):
         if self.client:
             self.client.close()
-            logger.info("Closed MongoDB Atlas connection.")
+            logger.info("Closed MongoDB connection.")
 
 db_manager = DatabaseManager()

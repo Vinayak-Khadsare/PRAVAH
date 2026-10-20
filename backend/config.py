@@ -1,7 +1,14 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Search for .env in current working dir, backend directory, or project root
+for p in [Path.cwd() / ".env", Path(__file__).resolve().parent / ".env", Path(__file__).resolve().parent.parent / ".env"]:
+    if p.exists():
+        load_dotenv(p, override=True)
+        break
+else:
+    load_dotenv(override=True)
 
 class Settings:
     PROJECT_NAME: str = "PRAVAH AICTE Approval Operations Platform"
@@ -9,9 +16,8 @@ class Settings:
     API_PREFIX: str = "/api"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     
-    # MongoDB Atlas Connection URI
-    # Kept exclusively in environment variables for security
-    MONGODB_URI: str = os.getenv("MONGODB_URI", "")
+    # MongoDB Connection URI (Defaults to local MongoDB instance on port 27017)
+    MONGODB_URI: str = os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017/pravah_aicte_db")
     DATABASE_NAME: str = os.getenv("DATABASE_NAME", "pravah_aicte_db")
     
     # JWT and Security

@@ -47,13 +47,21 @@ app.add_middleware(
 # Health Check Endpoint
 @app.get("/api/health", tags=["Health"])
 async def health_check():
+    db_mode = "Local Demonstration Persistence Store"
+    is_local = False
+    if db_manager.is_atlas_connected:
+        is_local = "127.0.0.1" in settings.MONGODB_URI or "localhost" in settings.MONGODB_URI
+        db_mode = f"Local MongoDB ({settings.DATABASE_NAME})" if is_local else f"MongoDB Atlas ({settings.DATABASE_NAME})"
+
     return {
         "status": "operational",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "database": {
-            "mode": "MongoDB Atlas" if db_manager.is_atlas_connected else "Local Demonstration Persistence Store",
+            "mode": db_mode,
             "connected": True,
+            "databaseName": settings.DATABASE_NAME,
+            "isLocalMongo": is_local,
         },
         "deadlineMonitor": DeadlineMonitorService.get_health(),
         "regulatoryStandard": "AICTE Approval Process Handbook (APH) 2026-2027",

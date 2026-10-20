@@ -167,6 +167,7 @@ class WorkflowEngine:
                 "timestamp": timestamp,
                 "sha256": seal_hash
             })
+            await db_manager.db.audit_events.insert_one(dict(audit_entry))
 
         # Update in-memory collections
         db_manager.applications[app_id] = application
