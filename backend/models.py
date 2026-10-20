@@ -156,6 +156,24 @@ class AlertNotificationModel(BaseModel):
     assignedRole: Optional[str] = None
 
 # Auth Models
+class UserRegistrationRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
+    confirmPassword: str = Field(..., min_length=8, max_length=128)
+    institutionName: str = Field(..., min_length=3, max_length=150)
+    institutionPid: str = Field(..., min_length=3, max_length=30)
+    regionalOffice: Optional[str] = "Northern Regional Office (NRO) - Kanpur"
+
+class AdminUserCreateRequest(BaseModel):
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
+    role: UserRole
+    regionalOffice: str
+    institutionPid: Optional[str] = None
+    institutionName: Optional[str] = None
+
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
@@ -163,6 +181,7 @@ class UserCreate(BaseModel):
     role: UserRole
     regionalOffice: str
     institutionPid: Optional[str] = None
+    institutionName: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -177,7 +196,25 @@ class UserResponse(BaseModel):
     regionalOffice: str
     initials: str
     institutionPid: Optional[str] = None
+    institutionName: Optional[str] = None
     active: bool = True
+    verificationStatus: str = "verified"
+    createdAt: Optional[str] = None
+
+class UserStatusUpdateRequest(BaseModel):
+    active: bool
+    reason: Optional[str] = None
+
+class UserVerificationUpdateRequest(BaseModel):
+    verificationStatus: str  # 'verified' | 'rejected'
+    remarks: Optional[str] = None
+
+class UserRoleUpdateRequest(BaseModel):
+    role: UserRole
+    regionalOffice: Optional[str] = None
+    institutionPid: Optional[str] = None
+    institutionName: Optional[str] = None
+    reason: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str

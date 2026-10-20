@@ -53,7 +53,13 @@ async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] =
     if not user.get("active", True):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User account has been deactivated.",
+            detail="User account has been deactivated. Contact Regional Directorate.",
+        )
+        
+    if user.get("verificationStatus") == "rejected":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account verification was rejected by Regional Directorate.",
         )
         
     return user
@@ -77,6 +83,17 @@ def require_roles(allowed_roles: List[str]):
         return current_user
     return role_checker
 
+def prevent_auditor_mutation(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+    """
+    Ensure auditor accounts cannot execute write/mutation operations.
+    """
+    if current_user.get("role") == "auditor":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Auditor role is strictly read-only and cannot mutate regulatory records.",
+        )
+    return current_user
+
 def verify_institution_scope(application: Any, current_user: Dict[str, Any]):
     """
     Ensure an institution user cannot access or mutate records belonging to a different institution.
@@ -89,3 +106,19 @@ def verify_institution_scope(application: Any, current_user: Dict[str, Any]):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access restricted: You may only access regulatory records belonging to your assigned institution.",
             )
+
+def verify_regional_scope(regional_office: Optional[str], current_user: Dict[str, Any]):
+    """
+    Ensure regional officers only access records within their assigned regional jurisdiction.
+    """
+    if current_user.get("role") == "regional_officer":
+        user_office = current_user.get("regionalOffice")
+        if user_office and regional_office and "Central Bureau" not in user_office:
+            # Check regional office match
+            u_norm = user_office.lower().replace("office", "").strip()
+            r_norm = regional_office.lower().replace("office", "").strip()
+            if u_norm not in r_norm and r_norm not in u_norm:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access restricted: Regional officer may only access records within jurisdiction '{user_office}'.",
+                )

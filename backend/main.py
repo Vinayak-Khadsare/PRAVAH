@@ -6,7 +6,7 @@ from backend.config import settings
 from backend.database import db_manager
 from backend.services.deadline_service import DeadlineMonitorService
 from backend.routers import (
-    auth, applications, workflow, evc, compliance, 
+    auth, admin, applications, workflow, evc, compliance, 
     documents, alerts, audit, policies
 )
 
@@ -69,6 +69,7 @@ async def health_check():
 
 # Register Routers under /api
 app.include_router(auth.router, prefix=settings.API_PREFIX)
+app.include_router(admin.router, prefix=settings.API_PREFIX)
 app.include_router(applications.router, prefix=settings.API_PREFIX)
 app.include_router(workflow.router, prefix=settings.API_PREFIX)
 app.include_router(evc.router, prefix=settings.API_PREFIX)

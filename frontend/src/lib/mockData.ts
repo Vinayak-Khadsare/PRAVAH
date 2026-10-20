@@ -1,11 +1,14 @@
 import { ApplicationRecord, EvcScheduleRecord, ComplianceTrackingRecord, AlertNotification, UserSession } from './types';
 
 export const currentUser: UserSession = {
-  userId: 'r.srivastava@aicte-india.org',
+  userId: 'usr-ro-01',
+  email: 'r.srivastava@aicte-india.org',
   name: 'Dr. R. K. Srivastava',
-  role: 'Member Secretary (RO Auth)',
+  role: 'regional_officer',
+  roleDisplay: 'Member Secretary (RO Auth)',
   regionalOffice: 'Northern Regional Office (NRO) - Kanpur',
   initials: 'RS',
+  active: true,
 };
 
 export const sampleApplications: ApplicationRecord[] = [

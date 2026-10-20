@@ -24,12 +24,12 @@ async def trigger_deadline_evaluation(user: Dict[str, Any] = Depends(get_current
     """Manually invoke idempotent deadline evaluation check."""
     return await DeadlineMonitorService.evaluate_application_deadlines()
 
-@router.post("/{alert_id}/acknowledge")
+@router.post("/{alert_id}/acknowledge", dependencies=[Depends(require_roles(["regional_officer", "scrutiny_officer", "aicte_admin", "super_admin"]))])
 async def acknowledge_alert(alert_id: str, user: Dict[str, Any] = Depends(get_current_user)):
     """Acknowledge an alert."""
     return await DeadlineMonitorService.acknowledge_alert(alert_id=alert_id, actor=user)
 
-@router.post("/{alert_id}/resolve")
+@router.post("/{alert_id}/resolve", dependencies=[Depends(require_roles(["regional_officer", "scrutiny_officer", "aicte_admin", "super_admin"]))])
 async def resolve_alert(alert_id: str, req: ResolveAlertRequest, user: Dict[str, Any] = Depends(get_current_user)):
     """Resolve an alert with documentation."""
     return await DeadlineMonitorService.resolve_alert(alert_id=alert_id, resolution_note=req.resolutionNote, actor=user)

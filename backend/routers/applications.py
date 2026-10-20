@@ -1,5 +1,6 @@
 import time
 import hashlib
+import copy
 from fastapi import APIRouter, HTTPException, Depends, Query, status
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
@@ -159,7 +160,7 @@ async def create_application(req: NewApplicationRequest, user: Dict[str, Any] = 
 
     return new_app
 
-@router.post("/{app_id}/transition")
+@router.post("/{app_id}/transition", dependencies=[Depends(require_roles(["regional_officer", "scrutiny_officer", "committee_member", "aicte_admin", "super_admin"]))])
 async def execute_transition(
     app_id: str,
     req: StateTransitionRequest,
@@ -206,10 +207,11 @@ async def record_observation(
     if db_manager.is_atlas_connected and db_manager.db is not None:
         await db_manager.db.applications.update_one(
             {"id": app_id},
-            {"$push": {"auditLog": {"$each": [new_event], "$position": 0}}}
+            {"$push": {"auditLog": {"$each": [copy.deepcopy(new_event)], "$position": 0}}}
         )
-        await db_manager.db.audit_events.insert_one(new_event)
+        await db_manager.db.audit_events.insert_one(copy.deepcopy(new_event))
 
+    new_event.pop("_id", None)
     return {"success": True, "event": new_event}
 
 @router.post("/{app_id}/grace-notice", dependencies=[Depends(require_roles(["regional_officer", "aicte_admin", "super_admin"]))])
@@ -249,11 +251,12 @@ async def grant_grace_notice(
             {"id": app_id},
             {
                 "$set": {"criticalBlocker": app.get("criticalBlocker")},
-                "$push": {"auditLog": {"$each": [new_event], "$position": 0}}
+                "$push": {"auditLog": {"$each": [copy.deepcopy(new_event)], "$position": 0}}
             }
         )
-        await db_manager.db.audit_events.insert_one(new_event)
+        await db_manager.db.audit_events.insert_one(copy.deepcopy(new_event))
 
+    new_event.pop("_id", None)
     return {"success": True, "event": new_event}
 
 @router.post("/{app_id}/deficiency-form-b", dependencies=[Depends(require_roles(["scrutiny_officer", "regional_officer", "aicte_admin", "super_admin"]))])
@@ -346,9 +349,10 @@ async def submit_rectification(
                     "deficiencies": app.get("deficiencies", []),
                     "criticalBlocker": app.get("criticalBlocker")
                 },
-                "$push": {"auditLog": {"$each": [audit_entry], "$position": 0}}
+                "$push": {"auditLog": {"$each": [copy.deepcopy(audit_entry)], "$position": 0}}
             }
         )
-        await db_manager.db.audit_events.insert_one(audit_entry)
+        await db_manager.db.audit_events.insert_one(copy.deepcopy(audit_entry))
 
+    audit_entry.pop("_id", None)
     return {"success": True, "message": "Rectification submission recorded for re-scrutiny.", "event": audit_entry}

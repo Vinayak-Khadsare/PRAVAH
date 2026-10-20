@@ -71,6 +71,19 @@ INITIAL_USERS = [
         "createdAt": "2026-02-15T12:00:00Z"
     },
     {
+        "userId": "usr-comm-01",
+        "email": "committee@aicte-india.org",
+        "passwordHash": hash_password("Password@123"),
+        "name": "Hon'ble Justice (Retd.) B. N. Rao",
+        "role": "committee_member",
+        "regionalOffice": "Standing Appeals Committee (SAC) - New Delhi",
+        "initials": "BR",
+        "institutionPid": None,
+        "active": True,
+        "verificationStatus": "verified",
+        "createdAt": "2026-02-01T10:00:00Z"
+    },
+    {
         "userId": "usr-auditor-01",
         "email": "auditor@aicte-india.org",
         "passwordHash": hash_password("AuditorPassword@123"),
@@ -80,7 +93,21 @@ INITIAL_USERS = [
         "initials": "AU",
         "institutionPid": None,
         "active": True,
+        "verificationStatus": "verified",
         "createdAt": "2026-02-01T10:00:00Z"
+    },
+    {
+        "userId": "usr-super-01",
+        "email": "superadmin@aicte-india.org",
+        "passwordHash": hash_password("SuperPassword@123"),
+        "name": "AICTE Member Secretary (Super Admin)",
+        "role": "super_admin",
+        "regionalOffice": "Central Bureau / Member Secretary Desk",
+        "initials": "MS",
+        "institutionPid": None,
+        "active": True,
+        "verificationStatus": "verified",
+        "createdAt": "2026-01-01T00:00:00Z"
     }
 ]
 
@@ -200,8 +227,10 @@ class DatabaseManager:
         if self.db is None:
             return
         try:
-            if await self.db.users.count_documents({}) == 0:
-                await self.db.users.insert_many(copy.deepcopy(INITIAL_USERS))
+            for u in INITIAL_USERS:
+                existing = await self.db.users.find_one({"email": u["email"]})
+                if not existing:
+                    await self.db.users.insert_one(copy.deepcopy(u))
             if await self.db.applications.count_documents({}) == 0:
                 await self.db.applications.insert_many(copy.deepcopy(INITIAL_APPLICATIONS))
             if await self.db.evc.count_documents({}) == 0:

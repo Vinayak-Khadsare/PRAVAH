@@ -43,5 +43,11 @@ class Settings:
 
 settings = Settings()
 
+# Enforce strong environment-provided secret in production
+if settings.ENVIRONMENT == "production":
+    raw_secret = os.getenv("JWT_SECRET")
+    if not raw_secret or raw_secret == "pravah-aicte-secure-key-2026-production-token-sih-eval" or len(raw_secret) < 32:
+        raise ValueError("Production deployment requires a strong, environment-provided JWT_SECRET (minimum 32 characters).")
+
 # Ensure uploads directory exists
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)

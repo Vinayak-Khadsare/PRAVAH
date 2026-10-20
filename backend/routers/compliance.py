@@ -45,6 +45,9 @@ async def submit_evidence(
     if not item:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Compliance item '{compliance_id}' not found.")
 
+    # Enforce institutional isolation
+    verify_institution_scope(item.get("pid"), user)
+
     now_str = time.strftime("%d %b %Y, %I:%M %p IST")
     item["evidenceSubmitted"] = True
     item["evidenceDocumentId"] = req.documentEvidenceId

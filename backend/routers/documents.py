@@ -16,7 +16,7 @@ async def get_documents(user: Dict[str, Any] = Depends(get_current_user)):
     """Retrieve all documents scoped to user role."""
     return await DocumentService.get_all_documents(actor=user)
 
-@router.post("/upload")
+@router.post("/upload", dependencies=[Depends(require_roles(["institution_rep", "regional_officer", "scrutiny_officer", "aicte_admin", "super_admin"]))])
 async def upload_document(
     applicationId: str = Form(...),
     category: str = Form(...),

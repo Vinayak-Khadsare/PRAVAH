@@ -171,10 +171,50 @@ export interface AlertNotification {
   resolved: boolean;
 }
 
+export type CanonicalRole = 
+  | 'super_admin'
+  | 'aicte_admin'
+  | 'regional_officer'
+  | 'scrutiny_officer'
+  | 'evc_member'
+  | 'committee_member'
+  | 'institution_rep'
+  | 'auditor';
+
 export interface UserSession {
   userId: string;
+  email: string;
   name: string;
-  role: 'Member Secretary (RO Auth)' | 'Senior Scrutiny Officer' | 'Town Planning Officer' | 'EVC Convener' | 'Institution Admin' | 'CAG Regulatory Auditor' | 'AICTE Administrator';
+  role: CanonicalRole;
+  roleDisplay: string;
   regionalOffice: string;
   initials: string;
+  institutionPid?: string;
+  institutionName?: string;
+  verificationStatus?: 'verified' | 'pending' | 'rejected';
+  active: boolean;
+  createdAt?: string;
+}
+
+export function getRoleDisplayName(role: string): string {
+  switch (role) {
+    case 'super_admin':
+      return 'AICTE Member Secretary (Super Admin)';
+    case 'aicte_admin':
+      return 'AICTE Central Administrator';
+    case 'regional_officer':
+      return 'Member Secretary (RO Auth)';
+    case 'scrutiny_officer':
+      return 'Senior Scrutiny Officer';
+    case 'evc_member':
+      return 'EVC Convener';
+    case 'committee_member':
+      return 'Standing Appeals Committee Member';
+    case 'institution_rep':
+      return 'Institution Representative';
+    case 'auditor':
+      return 'CAG Regulatory Auditor';
+    default:
+      return role || 'Authorized Official';
+  }
 }

@@ -6,6 +6,10 @@ from fastapi.testclient import TestClient
 # Ensure root directory is on PYTHONPATH
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
+os.environ["MONGODB_URI"] = ""
+from backend.config import settings
+settings.MONGODB_URI = ""
+
 from backend.main import app
 from backend.database import db_manager
 from backend.security import create_access_token
@@ -13,6 +17,10 @@ from backend.security import create_access_token
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db():
     """Ensure in-memory test database is cleanly initialized."""
+    settings.MONGODB_URI = ""
+    db_manager.is_atlas_connected = False
+    db_manager.client = None
+    db_manager.db = None
     db_manager._init_memory_store()
 
 @pytest.fixture
@@ -83,6 +91,28 @@ def auditor_token():
         "sub": "auditor@aicte-india.org",
         "userId": "usr-auditor-01",
         "role": "auditor",
+        "regionalOffice": "Central Bureau / Member Secretary Desk",
+        "institutionPid": None
+    })
+
+@pytest.fixture
+def committee_token():
+    """Token for Committee Member."""
+    return create_access_token({
+        "sub": "committee@aicte-india.org",
+        "userId": "usr-comm-01",
+        "role": "committee_member",
+        "regionalOffice": "Standing Appeals Committee (SAC) - New Delhi",
+        "institutionPid": None
+    })
+
+@pytest.fixture
+def super_admin_token():
+    """Token for Super Admin."""
+    return create_access_token({
+        "sub": "superadmin@aicte-india.org",
+        "userId": "usr-super-01",
+        "role": "super_admin",
         "regionalOffice": "Central Bureau / Member Secretary Desk",
         "institutionPid": None
     })

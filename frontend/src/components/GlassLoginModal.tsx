@@ -1,6 +1,5 @@
-'use client';
-
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
@@ -12,22 +11,28 @@ interface GlassLoginModalProps {
 export default function GlassLoginModal({ isOpen, onClose }: GlassLoginModalProps) {
   const router = useRouter();
   const { login } = useAuth();
-  const [userId, setUserId] = useState('r.srivastava@aicte-india.org');
-  const [password, setPassword] = useState('••••••••••••••••');
+  const [userId, setUserId] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [selectedOffice, setSelectedOffice] = useState('Northern Regional Office (NRO) - Kanpur');
   const [rememberSession, setRememberSession] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsLoading(true);
-    await login(userId, password, selectedOffice);
+    const result = await login(userId, password, selectedOffice);
     setIsLoading(false);
-    onClose();
-    router.push('/dashboard');
+    if (result.success) {
+      onClose();
+      router.push('/dashboard');
+    } else {
+      setErrorMessage(result.error || 'Authentication failed. Official email or password incorrect.');
+    }
   };
 
   return (
@@ -117,6 +122,13 @@ export default function GlassLoginModal({ isOpen, onClose }: GlassLoginModalProp
 
             {/* Glass Form Container */}
             <form onSubmit={handleSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="p-3 rounded bg-brand-alert-bg border border-brand-alert-red/30 text-brand-alert-red text-xs flex items-start gap-2 animate-shake">
+                  <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
+                  <span>{errorMessage}</span>
+                </div>
+              )}
+
               {/* Email / User ID */}
               <div>
                 <label className="block text-xs font-semibold text-brand-charcoal mb-1" htmlFor="user-id">
@@ -214,6 +226,19 @@ export default function GlassLoginModal({ isOpen, onClose }: GlassLoginModalProp
                   arrow_forward
                 </span>
               </button>
+
+              {/* Create Account Link */}
+              <div className="pt-2 text-center text-xs text-brand-charcoal/80 border-t border-brand-border/60">
+                New Technical Institution?{' '}
+                <Link
+                  href="/register"
+                  onClick={onClose}
+                  className="font-bold text-brand-copper hover:text-brand-forest transition-colors inline-flex items-center gap-1 hover:underline ml-1"
+                >
+                  <span>Create Account</span>
+                  <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                </Link>
+              </div>
             </form>
 
             {/* Footer warning */}

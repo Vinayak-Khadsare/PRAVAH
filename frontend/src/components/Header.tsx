@@ -9,7 +9,7 @@ import { UserSession } from '@/lib/types';
 
 export default function Header() {
   const router = useRouter();
-  const { user, selectedOffice, setSelectedOffice, switchRole, logout } = useAuth();
+  const { user, selectedOffice, setSelectedOffice, logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [showRoleMenu, setShowRoleMenu] = useState(false);
   const [showAlertMenu, setShowAlertMenu] = useState(false);
@@ -21,14 +21,6 @@ export default function Header() {
     'Eastern Regional Office (ERO) - Kolkata',
     'North-Western Regional Office (NWRO) - Chandigarh',
     'Central Bureau / Member Secretary Desk',
-  ];
-
-  const roles: UserSession['role'][] = [
-    'Member Secretary (RO Auth)',
-    'Senior Scrutiny Officer',
-    'Town Planning Officer',
-    'EVC Convener',
-    'Institution Admin',
   ];
 
   const handleSearch = (e: React.FormEvent) => {
@@ -148,64 +140,88 @@ export default function Header() {
             <span className="material-symbols-outlined text-[20px]">receipt_long</span>
           </Link>
 
-          {/* User Profile & Role Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => setShowRoleMenu(!showRoleMenu)}
-              className="flex items-center gap-2.5 ml-2 pl-2 border-l border-brand-border text-left hover:bg-brand-subtle/60 p-1 rounded-sm transition-colors"
-            >
-              <div className="w-7 h-7 rounded-sm bg-brand-subtle border border-brand-border text-brand-forest font-semibold text-xs flex items-center justify-center">
-                {user?.initials || 'RS'}
-              </div>
-              <div className="hidden sm:block">
-                <div className="text-xs font-semibold leading-tight text-brand-text-primary flex items-center gap-1">
-                  <span>{user?.name || 'Dr. R. K. Srivastava'}</span>
-                  <span className="material-symbols-outlined text-[14px] text-brand-text-muted">arrow_drop_down</span>
+          {/* User Profile */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setShowRoleMenu(!showRoleMenu)}
+                className="flex items-center gap-2.5 ml-2 pl-2 border-l border-brand-border text-left hover:bg-brand-subtle/60 p-1 rounded-sm transition-colors cursor-pointer"
+              >
+                <div className="w-7 h-7 rounded-sm bg-brand-subtle border border-brand-border text-brand-forest font-semibold text-xs flex items-center justify-center">
+                  {user.initials || 'UR'}
                 </div>
-                <div className="text-[10px] text-brand-text-muted leading-tight">
-                  {user?.role || 'Member Secretary (RO Auth)'}
+                <div className="hidden sm:block">
+                  <div className="text-xs font-semibold leading-tight text-brand-text-primary flex items-center gap-1">
+                    <span>{user.name}</span>
+                    <span className="material-symbols-outlined text-[14px] text-brand-text-muted">arrow_drop_down</span>
+                  </div>
+                  <div className="text-[10px] text-brand-text-muted leading-tight">
+                    {user.roleDisplay || user.role}
+                  </div>
                 </div>
-              </div>
-            </button>
+              </button>
 
-            {showRoleMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-brand-border rounded-lg shadow-glass-panel p-2 z-50 text-xs">
-                <div className="px-3 py-1.5 text-[10px] uppercase font-bold text-brand-text-muted border-b border-brand-border mb-1">
-                  Switch Regulatory Persona
+              {showRoleMenu && (
+                <div className="absolute right-0 mt-2 w-72 bg-white border border-brand-border rounded-lg shadow-glass-panel p-3 z-50 text-xs animate-fadeIn">
+                  <div className="pb-2 border-b border-brand-border mb-2">
+                    <div className="font-bold text-brand-charcoal text-sm">{user.name}</div>
+                    <div className="text-[11px] text-brand-text-muted font-mono truncate">{user.email}</div>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-forest-light text-brand-forest border border-brand-forest/20">
+                        {user.roleDisplay || user.role}
+                      </span>
+                      {user.institutionPid && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-brand-tag-bg text-brand-text-muted border border-brand-border">
+                          PID: {user.institutionPid}
+                        </span>
+                      )}
+                      {user.verificationStatus === 'pending' && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-brand-amber-bg text-brand-amber border border-brand-amber/30">
+                          Pending Verification
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 text-xs text-brand-text-muted">
+                    <div className="text-[11px]">
+                      <span className="font-medium text-brand-text-primary">Regional Office:</span>{' '}
+                      {user.regionalOffice}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 mt-2 border-t border-brand-border">
+                    <button
+                      onClick={() => {
+                        logout();
+                        setShowRoleMenu(false);
+                        router.push('/login');
+                      }}
+                      className="w-full text-left px-3 py-1.5 rounded text-xs text-brand-alert-red hover:bg-brand-alert-bg font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">logout</span>
+                      Sign Out
+                    </button>
+                  </div>
                 </div>
-                {roles.map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => {
-                      switchRole(r);
-                      setShowRoleMenu(false);
-                    }}
-                    className={`w-full text-left px-3 py-1.5 rounded text-xs flex items-center justify-between hover:bg-brand-subtle transition-colors ${
-                      user?.role === r ? 'font-bold text-brand-forest bg-brand-forest-light/60' : 'text-brand-text-primary'
-                    }`}
-                  >
-                    <span>{r}</span>
-                    {user?.role === r && (
-                      <span className="material-symbols-outlined text-[16px] text-brand-forest">check</span>
-                    )}
-                  </button>
-                ))}
-                <div className="pt-2 mt-1 border-t border-brand-border">
-                  <button
-                    onClick={() => {
-                      logout();
-                      setShowRoleMenu(false);
-                      router.push('/login');
-                    }}
-                    className="w-full text-left px-3 py-1.5 rounded text-xs text-brand-alert-red hover:bg-brand-alert-bg font-semibold flex items-center gap-1.5"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">logout</span>
-                    Sign Out
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 pl-2 border-l border-brand-border">
+              <Link
+                href="/login"
+                className="px-3 py-1.5 rounded text-xs font-semibold bg-brand-forest text-white hover:bg-brand-forest-dark transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                className="px-3 py-1.5 rounded text-xs font-semibold bg-white text-brand-forest border border-brand-forest hover:bg-brand-subtle transition-colors"
+              >
+                Register
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </header>

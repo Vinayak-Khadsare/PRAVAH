@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import RouteGuard from '@/components/RouteGuard';
 
 export const metadata: Metadata = {
   title: 'PRAVAH — AICTE Approval Operations Platform',
@@ -20,7 +21,9 @@ export default function RootLayout({
       </head>
       <body className="bg-brand-ivory text-brand-charcoal font-sans antialiased selection:bg-brand-copper/20 selection:text-brand-forest">
         <AuthProvider>
-          {children}
+          <RouteGuard>
+            {children}
+          </RouteGuard>
         </AuthProvider>
       </body>
     </html>
