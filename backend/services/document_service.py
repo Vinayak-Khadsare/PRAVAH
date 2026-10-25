@@ -1,6 +1,7 @@
 import os
 import time
 import hashlib
+from pathlib import Path
 from typing import Dict, Any, List, Optional
 from fastapi import HTTPException, UploadFile, status
 from backend.config import settings
@@ -86,8 +87,12 @@ class DocumentService:
 
         doc_id = f"DOC-{app.get('pid', '0')}-{category[:3].upper()}{version}"
         safe_disk_filename = f"{doc_id}_{int(time.time())}{ext}"
-        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
-        save_path = os.path.join(settings.UPLOAD_DIR, safe_disk_filename)
+        settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        save_path = (settings.UPLOAD_DIR / safe_disk_filename).resolve()
+
+        # Path traversal guard
+        if not str(save_path).startswith(str(settings.UPLOAD_DIR)):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid storage path detected.")
 
         # Write to storage
         with open(save_path, "wb") as f:
@@ -176,16 +181,21 @@ class DocumentService:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied: Cannot retrieve document from other institutions.")
 
         storage_path = doc.get("storagePath")
-        if not storage_path or not os.path.exists(storage_path):
-            # In demo mode, if physical file doesn't exist yet on disk, create a placeholder
-            if storage_path:
-                os.makedirs(os.path.dirname(storage_path), exist_ok=True)
-                with open(storage_path, "wb") as f:
-                    f.write(b"%PDF-1.4 Demonstration Digital Record Seal - AICTE PRAVAH")
-            else:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Physical document file missing from storage repository.")
+        if not storage_path:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Physical document file missing from storage repository.")
 
-        return storage_path
+        resolved_path = Path(storage_path).resolve()
+        # Verify the file is strictly within the designated UPLOAD_DIR
+        if not str(resolved_path).startswith(str(settings.UPLOAD_DIR)):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access to specified document path is denied.")
+
+        if not resolved_path.exists():
+            # In demo mode, if physical file doesn't exist yet on disk, create a placeholder
+            resolved_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(resolved_path, "wb") as f:
+                f.write(b"%PDF-1.4 Demonstration Digital Record Seal - AICTE PRAVAH")
+
+        return str(resolved_path)
 
     @classmethod
     async def review_document(

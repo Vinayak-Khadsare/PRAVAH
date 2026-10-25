@@ -33,30 +33,40 @@ export default function RegulatoryActionModal({
   const [note, setNote] = useState('');
   const [graceHours, setGraceHours] = useState(48);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen || !actionType) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMessage(null);
 
     try {
+      let res: any = { success: true };
       if (actionType === 'observation') {
-        await pravahApi.recordObservation(appId, note || 'Scrutiny observation logged without formal defect.', 'Dr. P. K. Verma');
+        res = await pravahApi.recordObservation(appId, note || 'Scrutiny observation logged without formal defect.', 'Dr. P. K. Verma');
       } else if (actionType === 'grace_notice') {
-        await pravahApi.grantGraceNotice(appId, graceHours);
+        res = await pravahApi.grantGraceNotice(appId, graceHours);
       } else if (actionType === 'deficiency_form_b') {
-        await pravahApi.issueDeficiencyFormB(appId, note || 'Mandatory Land Registry Deed lacks Sub-Registrar seal per APH 2.4.1.');
+        res = await pravahApi.issueDeficiencyFormB(appId, note || 'Mandatory Land Registry Deed lacks Sub-Registrar seal per APH 2.4.1.');
       } else if (actionType === 'escalate_sac') {
-        await pravahApi.escalateToSac(appId, note || 'Statutory 15-day ceiling exceeded. Land encumbrance unresolved during cure period.');
+        res = await pravahApi.escalateToSac(appId, note || 'Statutory 15-day ceiling exceeded. Land encumbrance unresolved during cure period.');
       } else if (actionType === 'recommend_evc') {
-        await pravahApi.recommendForEvc(appId);
+        res = await pravahApi.recommendForEvc(appId);
       } else if (actionType === 'accept_rectification' && deficiencyId) {
-        await pravahApi.acceptRectification(appId, deficiencyId);
+        res = await pravahApi.acceptRectification(appId, deficiencyId);
+      }
+
+      if (res && res.success === false) {
+        setErrorMessage(res.error || 'The requested statutory action could not be processed by the server.');
+        return;
       }
 
       onSuccess();
       onClose();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'An unexpected communication error occurred.');
     } finally {
       setIsSubmitting(false);
     }
@@ -120,6 +130,13 @@ export default function RegulatoryActionModal({
             <span className="material-symbols-outlined text-[20px]">close</span>
           </button>
         </div>
+
+        {errorMessage && (
+          <div className="p-3 rounded-lg bg-brand-alert-bg border border-brand-alert-red/30 text-brand-alert-red text-xs flex items-start gap-2">
+            <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         {/* Action Description */}
         <div className={`p-3 rounded-lg border text-xs leading-relaxed ${getBadgeColor()}`}>

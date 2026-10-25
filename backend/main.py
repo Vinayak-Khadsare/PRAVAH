@@ -1,3 +1,4 @@
+import os
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -44,8 +45,53 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Liveness Endpoint
+@app.get("/api/live", tags=["Health"])
+@app.get("/live", tags=["Health"], include_in_schema=False)
+async def liveness():
+    """Liveness probe: verifies process is alive and responsive."""
+    return {"status": "alive", "service": settings.PROJECT_NAME, "version": settings.VERSION}
+
+# Readiness Endpoint
+@app.get("/api/ready", tags=["Health"])
+@app.get("/ready", tags=["Health"], include_in_schema=False)
+async def readiness():
+    """Readiness probe: verifies required dependencies, storage, and database."""
+    storage_ok = settings.UPLOAD_DIR.exists() and os.access(settings.UPLOAD_DIR, os.W_OK)
+    
+    if settings.ENVIRONMENT == "production" and not db_manager.is_atlas_connected:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=503,
+            detail="Database connection is not ready for production traffic."
+        )
+
+    db_mode = "Local Demonstration Persistence Store"
+    is_local = False
+    if db_manager.is_atlas_connected:
+        is_local = "127.0.0.1" in settings.MONGODB_URI or "localhost" in settings.MONGODB_URI
+        db_mode = f"Local MongoDB ({settings.DATABASE_NAME})" if is_local else f"MongoDB Atlas ({settings.DATABASE_NAME})"
+
+    return {
+        "status": "ready",
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
+        "database": {
+            "connected": db_manager.is_atlas_connected,
+            "mode": db_mode,
+            "isDemonstration": not db_manager.is_atlas_connected,
+            "databaseName": settings.DATABASE_NAME
+        },
+        "storage": {
+            "writable": storage_ok,
+            "path": str(settings.UPLOAD_DIR)
+        }
+    }
+
 # Health Check Endpoint
 @app.get("/api/health", tags=["Health"])
+@app.get("/health", tags=["Health"], include_in_schema=False)
 async def health_check():
     db_mode = "Local Demonstration Persistence Store"
     is_local = False
@@ -57,9 +103,11 @@ async def health_check():
         "status": "operational",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
         "database": {
             "mode": db_mode,
-            "connected": True,
+            "connected": db_manager.is_atlas_connected,
+            "isDemonstration": not db_manager.is_atlas_connected,
             "databaseName": settings.DATABASE_NAME,
             "isLocalMongo": is_local,
         },
@@ -81,4 +129,4 @@ app.include_router(policies.router, prefix=settings.API_PREFIX)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("backend.main:app", host=settings.HOST, port=settings.PORT, reload=True)

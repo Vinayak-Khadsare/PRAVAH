@@ -16,6 +16,13 @@ function getAuthHeaders(): HeadersInit {
   return headers;
 }
 
+export interface ApiActionResult {
+  success: boolean;
+  message?: string;
+  error?: string;
+  [key: string]: any;
+}
+
 export const pravahApi = {
   async getMetrics() {
     try {
@@ -24,8 +31,8 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Backend connectivity fallback
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration metrics baseline:', e);
     }
     return dashboardMetrics;
   },
@@ -42,8 +49,8 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Fallback only if backend offline
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration applications baseline:', e);
     }
 
     let results = [...sampleApplications];
@@ -77,104 +84,149 @@ export const pravahApi = {
       if (res.status === 404) {
         return null;
       }
-    } catch {
-      // Offline fallback
+    } catch (e) {
+      console.warn(`Backend unavailable for application '${id}', checking demonstration data:`, e);
     }
     const found = sampleApplications.find(a => a.id === id || a.pid === id);
     return found || null;
   },
 
-  async recordObservation(appId: string, observation: string, officerName: string) {
+  async recordObservation(appId: string, observation: string, officerName: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/observations`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ observation, officerName })
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-
-    const newLog: AuditLogEvent = {
-      id: `log-${Date.now()}`,
-      title: 'Scrutiny Officer Observation Recorded',
-      timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + ' IST',
-      description: observation,
-      actor: `${officerName} | Manual Scrutiny Entry`,
-      type: 'action',
-    };
-    return { success: true, event: newLog };
   },
 
-  async grantGraceNotice(appId: string, hours: number = 48) {
+  async grantGraceNotice(appId: string, hours: number = 48): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/grace-notice`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ hours, reason: `Statutory ${hours}-Hour Extension` })
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true, message: `${hours}-hour grace window recorded.` };
   },
 
-  async issueDeficiencyFormB(appId: string, reason: string) {
+  async issueDeficiencyFormB(appId: string, reason: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/deficiency-form-b`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ reason })
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true };
   },
 
-  async escalateToSac(appId: string, reason: string) {
+  async escalateToSac(appId: string, reason: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/escalate-sac`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ reason })
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true };
   },
 
-  async acceptRectification(appId: string, defRefCode: string, rectificationDetails: string = "Sub-Registrar verified stamp submitted") {
+  async acceptRectification(appId: string, defRefCode: string, rectificationDetails: string = "Sub-Registrar verified stamp submitted"): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/rectifications`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({ deficiencyRefCode: defRefCode, rectificationDetails })
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true };
   },
 
-  async recommendForEvc(appId: string) {
+  async recommendForEvc(appId: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/applications/${appId}/recommend-evc`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({})
       });
-      if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      if (res.ok) {
+        return await res.json();
+      }
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true };
   },
 
   async simulateScenario(appId: string, action: string, parameterValue?: number) {
@@ -185,8 +237,8 @@ export const pravahApi = {
         body: JSON.stringify({ applicationId: appId, action, parameterValue })
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+    } catch (e) {
+      console.warn('Simulation request failed:', e);
     }
     return null;
   },
@@ -198,23 +250,30 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration EVC schedule baseline:', e);
     }
     return sampleEvcSchedules;
   },
 
-  async dispatchEvc(evcId: string) {
+  async dispatchEvc(evcId: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/evc/${evcId}/dispatch`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true, message: `Dispatched token for ${evcId}` };
   },
 
   async getComplianceRecords(): Promise<ComplianceTrackingRecord[]> {
@@ -224,8 +283,8 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration compliance baseline:', e);
     }
     return sampleComplianceRecords;
   },
@@ -237,23 +296,30 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration alerts baseline:', e);
     }
     return sampleAlerts;
   },
 
-  async acknowledgeAlert(alertId: string) {
+  async acknowledgeAlert(alertId: string): Promise<ApiActionResult> {
     try {
       const res = await fetch(`${API_BASE_URL}/alerts/${alertId}/acknowledge`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+      const errData = await res.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errData.detail || `Server returned status ${res.status}`
+      };
+    } catch (e: any) {
+      return {
+        success: false,
+        error: e.message || 'Network connection to backend failed.'
+      };
     }
-    return { success: true };
   },
 
   async getAuditLogs(appId?: string): Promise<AuditLogEvent[]> {
@@ -264,8 +330,8 @@ export const pravahApi = {
         cache: 'no-store'
       });
       if (res.ok) return await res.json();
-    } catch {
-      // Offline
+    } catch (e) {
+      console.warn('Backend unavailable, using demonstration audit logs baseline:', e);
     }
     const allLogs: AuditLogEvent[] = [];
     sampleApplications.forEach(app => {

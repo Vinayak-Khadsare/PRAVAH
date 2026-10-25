@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # MongoDB Persistence Service
+  mongo:
+    image: mongo:7.0
+    container_name: pravah_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: pravah_aicte_db
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - "127.0.0.1:27017:27017"
+    networks:
+      - pravah_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # PRAVAH FastAPI Backend Engine
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: pravah_backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: development
+      HOST: "0.0.0.0"
+      PORT: 8000
+      MONGODB_URI: mongodb://mongo:27017/pravah_aicte_db
+      DATABASE_NAME: pravah_aicte_db
+      JWT_SECRET: ${JWT_SECRET:-pravah-docker-container-dev-signing-secret-key-32chars}
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000,http://frontend:3000
+      UPLOAD_DIR: /app/backend/uploads
+    volumes:
+      - uploads_data:/app/backend/uploads
+    ports:
+      - "8000:8000"
+    networks:
+      - pravah_net
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/live')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # PRAVAH Next.js Web Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pravah_frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api
+      BACKEND_INTERNAL_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    networks:
+      - pravah_net
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:
+    name: pravah_mongodb_data
+  uploads_data:
+    name: pravah_uploads_data
+
+networks:
+  pravah_net:
+    name: pravah_network
+    driver: bridge

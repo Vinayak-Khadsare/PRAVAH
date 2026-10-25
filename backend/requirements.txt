@@ -1,6 +1,28 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.31.0
-pydantic>=2.9.2
-motor>=3.6.0
-pymongo>=4.9.1
-python-dotenv>=1.0.1
+# PRAVAH Backend Runtime Dependencies
+# Python baseline: 3.10 - 3.14 (Recommended: 3.11 LTS)
+
+# Core Web Framework & ASGI Server
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.31.0,<1.0.0
+pydantic>=2.9.2,<3.0.0
+
+# Database & Async Drivers
+motor>=3.6.0,<4.0.0
+pymongo>=4.9.1,<5.0.0
+
+# Environment Configuration
+python-dotenv>=1.0.1,<2.0.0
+
+# Security, Hashing & JWT Authentication
+bcrypt>=4.0.0,<5.0.0
+python-jose[cryptography]>=3.3.0,<4.0.0
+
+# Form Handling & File Uploads (Required by FastAPI Form/File endpoints)
+python-multipart>=0.0.12,<1.0.0
+
+# Graph Intelligence & Dependency Simulation
+networkx>=3.2.1,<4.0.0
+
+# HTTP Client for verification & internal health monitoring
+requests>=2.32.0,<3.0.0
+httpx>=0.27.0,<1.0.0

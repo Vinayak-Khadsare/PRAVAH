@@ -20,15 +20,15 @@ export default function ApplicationDetailPage() {
   const [selectedDefId, setSelectedDefId] = useState<string | undefined>(undefined);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const loadData = () => {
+  const loadData = React.useCallback(() => {
     pravahApi.getApplicationById(appId).then((res) => {
       if (res) setApplication({ ...res });
     });
-  };
+  }, [appId]);
 
   useEffect(() => {
     loadData();
-  }, [appId]);
+  }, [loadData]);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -575,7 +575,7 @@ export default function ApplicationDetailPage() {
                                 </span>
                                 <div>
                                   <span className="font-semibold text-brand-text-primary">{item.officerName}: </span>
-                                  <span className="text-brand-text-muted">"{item.officerComment}"</span>
+                                  <span className="text-brand-text-muted">&ldquo;{item.officerComment}&rdquo;</span>
                                   <span className="text-brand-text-muted font-mono text-[10px] ml-1">({item.officerDate})</span>
                                 </div>
                               </div>
@@ -587,7 +587,7 @@ export default function ApplicationDetailPage() {
                                   </span>
                                   <div>
                                     <span className="font-semibold text-brand-copper">Institution Representative Response: </span>
-                                    <span className="text-brand-text-muted">"{item.applicantResponse}"</span>
+                                    <span className="text-brand-text-muted">&ldquo;{item.applicantResponse}&rdquo;</span>
                                     <span className="text-brand-text-muted font-mono text-[10px] ml-1">({item.applicantDate})</span>
                                   </div>
                                 </div>
