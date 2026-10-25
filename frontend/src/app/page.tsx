@@ -69,33 +69,45 @@ export default function LandingPage() {
         </div>
       </header>
 
-      {/* Hero Section with Interactive 3D Canvas */}
-      <section className="relative min-h-[calc(100vh-4rem)] flex items-center border-b border-brand-border bg-gradient-to-b from-brand-ivory via-brand-ivory to-[#F2EFE5] overflow-hidden">
-        <div className="absolute inset-0 grid-pattern opacity-60 pointer-events-none" />
+      {/* Full-Screen Hero Section with Autonomous 3D Approval Workflow Canvas */}
+      <section className="relative min-h-[92svh] lg:min-h-[96svh] flex items-center border-b border-brand-border bg-gradient-to-b from-brand-ivory via-brand-ivory to-[#F2EFE5] overflow-hidden">
+        {/* Subtle grid pattern background */}
+        <div className="absolute inset-0 grid-pattern opacity-45 pointer-events-none z-0" />
 
-        <div className="max-w-7xl mx-auto px-6 py-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-          {/* Left Column: Strategic Institutional Copy */}
-          <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-brand-sage/80 border border-brand-border text-xs font-mono font-medium text-brand-forest">
+        {/* Full-bleed 3D Autonomous Approval Pipeline Scene */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+          <ThreeHeroScene />
+        </div>
+
+        {/* Strategic readability gradient overlay for left-hand textual content */}
+        <div className="absolute inset-y-0 left-0 w-full lg:w-3/5 bg-gradient-to-r from-brand-ivory/95 via-brand-ivory/80 to-transparent pointer-events-none z-[1]" />
+
+        {/* Foreground Content Region */}
+        <div className="max-w-7xl mx-auto px-6 py-12 lg:py-16 w-full h-full relative z-10 flex flex-col justify-center pointer-events-none">
+          <div className="max-w-xl lg:max-w-2xl space-y-6 pointer-events-auto">
+            {/* Regulatory Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-brand-sage/90 border border-brand-border text-xs font-mono font-medium text-brand-forest shadow-2xs backdrop-blur-xs">
               <span className="w-2 h-2 rounded-full bg-brand-copper animate-pulse" />
-              AICTE APPROVAL OPERATIONS PLATFORM
+              <span>AICTE APPROVAL OPERATIONS PLATFORM • APH 2026</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-bold text-brand-charcoal tracking-tight leading-[1.12]">
+            {/* Main Institutional Headline */}
+            <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-brand-charcoal tracking-tight leading-[1.08]">
               Every approval.<br />
               Every deadline.<br />
               <span className="text-brand-forest">Under control.</span>
             </h1>
 
-            <p className="text-base text-brand-charcoal/80 leading-relaxed max-w-xl font-normal">
-              One unified workspace to manage technical institution application workflows, coordinate Expert Visit Committee inspections, track institutional compliance and surface delays before they become statutory bottlenecks.
+            {/* Strategic Description */}
+            <p className="text-base sm:text-lg text-brand-charcoal/85 leading-relaxed max-w-xl font-normal">
+              One unified workspace to manage technical institution application workflows, coordinate Expert Visit Committee inspections, track institutional compliance, and surface delays before they become statutory bottlenecks.
             </p>
 
-            {/* CTAs */}
+            {/* Action Buttons */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 href="/dashboard"
-                className="px-6 py-3 bg-brand-forest text-brand-ivory text-sm font-semibold rounded shadow-sm hover:bg-brand-forest-dark transition-all border border-brand-forest-dark flex items-center gap-2 group"
+                className="px-6 py-3.5 bg-brand-forest text-brand-ivory text-sm font-semibold rounded shadow-sm hover:bg-brand-forest-dark transition-all border border-brand-forest-dark flex items-center gap-2.5 group cursor-pointer"
               >
                 <span>Launch Operations Workspace</span>
                 <span className="material-symbols-outlined text-[18px] text-brand-copper-light transition-transform group-hover:translate-x-1">
@@ -104,71 +116,69 @@ export default function LandingPage() {
               </Link>
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="px-6 py-3 bg-white text-brand-forest text-sm font-semibold rounded border border-brand-border hover:border-brand-copper/50 hover:bg-brand-sage/50 transition-all flex items-center gap-2 shadow-xs cursor-pointer"
+                className="px-6 py-3.5 bg-white/90 backdrop-blur-xs text-brand-forest text-sm font-semibold rounded border border-brand-border hover:border-brand-copper/50 hover:bg-brand-sage/60 transition-all flex items-center gap-2 shadow-xs cursor-pointer"
               >
                 <span>Sign In</span>
                 <span className="text-xs font-mono text-brand-charcoal/50">RO / Auth</span>
               </button>
             </div>
 
-            <p className="text-xs font-mono text-brand-charcoal/60 pt-1 flex items-center gap-2">
+            {/* Trust Seal & Statutory Compliance Note */}
+            <p className="text-xs font-mono text-brand-charcoal/65 pt-1 flex items-center gap-2">
               <span className="material-symbols-outlined text-brand-forest text-[16px]">verified</span>
-              Designed for transparent workflows, accountable actions and timely compliance.
+              <span>Autonomous statutory enforcement • Cryptographic SHA-256 case integrity</span>
             </p>
 
-            {/* Quick Institutional Metrics Badge */}
-            <div className="pt-4 grid grid-cols-3 gap-3 border-t border-brand-border/70 max-w-lg">
-              <div className="bg-white/80 p-3 rounded border border-brand-border shadow-xs">
-                <div className="text-xl font-bold font-mono text-brand-forest">1,428</div>
-                <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">In-Process Apps</div>
+            {/* Institutional Baseline Metrics */}
+            <div className="pt-4 border-t border-brand-border/80 max-w-lg space-y-2">
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white/85 backdrop-blur-xs p-3 rounded border border-brand-border shadow-xs">
+                  <div className="text-xl font-bold font-mono text-brand-forest">1,428</div>
+                  <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">In-Process Apps</div>
+                </div>
+                <div className="bg-white/85 backdrop-blur-xs p-3 rounded border border-brand-border shadow-xs">
+                  <div className="text-xl font-bold font-mono text-brand-copper">15 Days</div>
+                  <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">Scrutiny Ceiling</div>
+                </div>
+                <div className="bg-white/85 backdrop-blur-xs p-3 rounded border border-brand-border shadow-xs">
+                  <div className="text-xl font-bold font-mono text-brand-forest-dark">6 Zonal</div>
+                  <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">Regional Offices</div>
+                </div>
               </div>
-              <div className="bg-white/80 p-3 rounded border border-brand-border shadow-xs">
-                <div className="text-xl font-bold font-mono text-brand-copper">15 Days</div>
-                <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">Scrutiny Ceiling</div>
-              </div>
-              <div className="bg-white/80 p-3 rounded border border-brand-border shadow-xs">
-                <div className="text-xl font-bold font-mono text-brand-forest-dark">6 Zonal</div>
-                <div className="text-[11px] text-brand-charcoal/70 uppercase font-medium">Regional Offices</div>
+              <div className="text-[10px] font-mono text-brand-charcoal/50 italic">
+                *Illustrative national operations baseline under APH 2026 statutory guidelines.
               </div>
             </div>
           </div>
 
-          {/* Right Column: Interactive 3D Workflow Scene */}
-          <div className="lg:col-span-6 relative flex items-center justify-center">
-            <div className="relative w-full aspect-[4/3] sm:aspect-square max-h-[580px] rounded-xl border border-brand-border bg-gradient-to-tr from-brand-sage/40 via-white/40 to-brand-ivory/20 shadow-subtle-elevated overflow-hidden group">
-              {/* Three.js Live WebGL Scene */}
-              <div className="absolute inset-0 w-full h-full">
-                <ThreeHeroScene />
+          {/* Autonomous Pipeline Live Telemetry Ribbon */}
+          <div className="mt-8 lg:mt-12 max-w-4xl pointer-events-auto">
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-white/85 backdrop-blur-md border border-brand-border text-xs shadow-xs">
+              <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-forest animate-pulse" />
+                  <span className="font-mono text-[11px]">01 Intake</span>
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-copper" />
+                  <span className="font-mono text-[11px]">02 Scrutiny</span>
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-forest-dark" />
+                  <span className="font-mono text-[11px]">03 EVC Inspection</span>
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-warning" />
+                  <span className="font-mono text-[11px]">04 SAC Hearing</span>
+                </span>
+                <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
+                  <span className="w-2.5 h-2.5 rounded-full bg-brand-success" />
+                  <span className="font-mono text-[11px]">05 LoA Decision</span>
+                </span>
               </div>
-
-              {/* Floating Stage Callout Overlay */}
-              <div className="absolute top-4 left-4 z-20 pointer-events-none">
-                <div className="bg-white/90 backdrop-blur-sm border border-brand-border px-3 py-1.5 rounded shadow-xs text-xs flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-brand-forest animate-ping" />
-                  <span className="font-mono font-medium text-brand-forest">LIVE APPLICATION DOSSIER</span>
-                  <span className="text-[10px] text-brand-charcoal/50">| APP-2026-00124</span>
-                </div>
-              </div>
-
-              {/* Bottom Legend for 3D Workflow Elements */}
-              <div className="absolute bottom-4 inset-x-4 z-20 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded bg-white/90 backdrop-blur-md border border-brand-border text-[11px]">
-                <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-forest" /> Scrutiny
-                  </span>
-                  <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-copper" /> EVC Inspection
-                  </span>
-                  <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-warning" /> SAC Hearing
-                  </span>
-                  <span className="flex items-center gap-1.5 font-medium text-brand-charcoal">
-                    <span className="w-2.5 h-2.5 rounded-full bg-brand-success" /> Authorized LoA
-                  </span>
-                </div>
-                <div className="font-mono text-[10px] text-brand-charcoal/60">
-                  Interactive 3D • Drag / Hover to inspect
-                </div>
+              <div className="flex items-center gap-2 font-mono text-[10px] text-brand-charcoal/70">
+                <span className="w-1.5 h-1.5 rounded-full bg-brand-success" />
+                <span>Autonomous 3D Pipeline • Continuous Regulatory Flow</span>
               </div>
             </div>
           </div>

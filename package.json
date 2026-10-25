@@ -1,0 +1,15 @@
+{
+  "name": "pravah-platform",
+  "version": "1.0.0",
+  "description": "PRAVAH - AICTE Approval Operations Platform",
+  "scripts": {
+    "dev": "npm run dev:frontend",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm run start"
+  },
+  "keywords": ["aicte", "approval", "workflow", "nextjs", "threejs", "fastapi"],
+  "author": "PRAVAH Team",
+  "license": "UNLICENSED"
+}
