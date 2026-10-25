@@ -202,11 +202,22 @@ backend/.venv/bin/python -m backend.seed_demo_data
 
 ## 🧪 Running Tests & Validations
 
-### Backend Test Suite (59 Tests)
+### Backend Test Suite (71 Tests)
 ```bash
-# Run all backend unit, integration, and security tests
+# Run all backend unit, integration, RBAC, and security tests
 pytest backend/tests
 ```
+
+### Dedicated QA Test Fixture Suite (12 Acceptance Tests)
+```bash
+# Run the persistent QA test account and safeguard verification suite
+pytest backend/tests/test_qa_fixture.py -v
+```
+
+### Persistent QA Test Account & E2E Automation
+PRAVAH provides a persistent, reusable QA test identity (`usr-qa-test-01`) for deterministic automated testing without registering new accounts on every test run.
+- **Initialise QA Test Data:** `python -m backend.init_qa_user --force`
+- **Comprehensive Documentation:** Refer to [docs/QA_TESTING.md](docs/QA_TESTING.md) for architecture details, environment flags, and CI/CD safeguards.
 
 ### Frontend Validations
 ```bash

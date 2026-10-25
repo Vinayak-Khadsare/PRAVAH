@@ -42,6 +42,16 @@ class Settings:
     ENABLE_DEADLINE_SCHEDULER: bool = os.getenv("ENABLE_DEADLINE_SCHEDULER", "true").lower() == "true"
     DEADLINE_CHECK_INTERVAL_SECONDS: int = int(os.getenv("DEADLINE_CHECK_INTERVAL_SECONDS", "60"))
     
+    # QA & E2E Automated Testing Fixtures (strictly disabled by default)
+    ENABLE_TEST_FIXTURES: bool = os.getenv("PRAVAH_ENABLE_TEST_FIXTURES", "false").lower() in ("true", "1", "yes")
+    QA_TEST_EMAIL: str = os.getenv("QA_TEST_EMAIL", "pravah.qa@example.test")
+    QA_TEST_NAME: str = os.getenv("QA_TEST_NAME", "PRAVAH QA Test User")
+    QA_TEST_PASSWORD: str = os.getenv("QA_TEST_PASSWORD", "QaTestingPassword@2026")
+    QA_TEST_ROLE: str = os.getenv("QA_TEST_ROLE", "institution_rep")
+    QA_TEST_PID: str = os.getenv("QA_TEST_PID", "1-4392811")
+    QA_TEST_INSTITUTION: str = os.getenv("QA_TEST_INSTITUTION", "Dronacharya Institute of Engineering & Technology")
+    QA_TEST_REGIONAL_OFFICE: str = os.getenv("QA_TEST_REGIONAL_OFFICE", "Northern Regional Office (NRO) - Kanpur")
+    
     # CORS Origins (parses comma-separated env var or falls back to safe local & container origins)
     @property
     def CORS_ORIGINS(self) -> List[str]:
@@ -67,3 +77,11 @@ if settings.ENVIRONMENT == "production":
 
 # Ensure uploads directory exists
 settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# In test or development environments, permit RFC 2606 reserved test domains (.test, .example)
+if settings.ENVIRONMENT != "production":
+    try:
+        import email_validator
+        email_validator.TEST_ENVIRONMENT = True
+    except ImportError:
+        pass

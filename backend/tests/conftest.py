@@ -116,3 +116,27 @@ def super_admin_token():
         "regionalOffice": "Central Bureau / Member Secretary Desk",
         "institutionPid": None
     })
+
+@pytest.fixture
+def qa_user_credentials():
+    """Credentials for the dedicated, persistent QA test account."""
+    return {
+        "email": settings.QA_TEST_EMAIL,
+        "password": settings.QA_TEST_PASSWORD
+    }
+
+@pytest.fixture
+def qa_token():
+    """Valid signed JWT token for the QA test account."""
+    return create_access_token({
+        "sub": settings.QA_TEST_EMAIL,
+        "userId": "usr-qa-test-01",
+        "role": settings.QA_TEST_ROLE,
+        "regionalOffice": settings.QA_TEST_REGIONAL_OFFICE,
+        "institutionPid": settings.QA_TEST_PID
+    })
+
+@pytest.fixture
+def qa_headers(qa_token):
+    """Authorization header dictionary for QA test account."""
+    return {"Authorization": f"Bearer {qa_token}"}

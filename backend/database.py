@@ -128,6 +128,7 @@ class DatabaseManager:
     client: Optional[AsyncIOMotorClient] = None
     db: Optional[AsyncIOMotorDatabase] = None
     is_atlas_connected: bool = False
+    _initialized: bool = False
     
     # In-memory storage for demonstration / local fallback mode
     # Deep copied on startup
@@ -158,8 +159,10 @@ class DatabaseManager:
 
     async def connect(self):
         """Establish MongoDB connection (Local or Atlas) or initialize persistent demo store."""
-        # Initialize in-memory repository with deepcopy
-        self._init_memory_store()
+        # Initialize in-memory repository with deepcopy once to retain runtime modifications
+        if not self._initialized or not self.users:
+            self._init_memory_store()
+            self._initialized = True
 
         if settings.MONGODB_URI and not settings.MONGODB_URI.startswith("mongodb+srv://<username>"):
             try:

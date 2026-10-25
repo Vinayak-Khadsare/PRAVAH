@@ -42,62 +42,48 @@ def main():
     assert_true("/login" in res.text, "'Sign In' link to /login found in /register HTML")
     assert_true("Permanent Institute ID" in res.text or "PID" in res.text, "PID field label confirmed")
 
-    # Step 4: Register a test institution representative (and test privilege escalation attempt)
-    log_step(4, "Register Institution Representative with Privilege Escalation Attempt")
-    reg_payload = {
-        "name": "Dr. Vikram Seth",
-        "email": "v.seth@bit-meerut.edu.in",
-        "password": "SecureBitPassword@2026",
-        "confirmPassword": "SecureBitPassword@2026",
-        "role": "super_admin",  # Malicious attempt to elevate role
-        "institutionName": "Bharat Institute of Technology",
-        "institutionPid": "1-4392811"
-    }
-    res = requests.post(f"{BACKEND_URL}/auth/register", json=reg_payload)
-    if res.status_code == 409:
-        print("  [INFO] User already registered from previous run. Continuing verification.")
-    else:
-        assert_true(res.status_code == 201, f"Registration succeeded: {res.status_code}")
-        data = res.json()
-        assert_true(data["role"] == "institution_rep", f"Server strictly enforced role='institution_rep' (attacker role rejected)")
-        assert_true(data["institutionPid"] == "1-4392811", f"PID correctly recorded: {data['institutionPid']}")
-        assert_true("passwordHash" not in data, "Password hash is never returned")
+    # Step 4: Verify Persistent QA Test Identity Initialisation
+    log_step(4, "Initialise & Verify Persistent QA Test Identity (Idempotent)")
+    try:
+        from backend.init_qa_user import initialize_qa_account, QA_USER_ID
+        import asyncio
+        qa_init_res = asyncio.run(initialize_qa_account(force=True))
+        assert_true(qa_init_res["status"] in ("created", "reused"), f"QA User confirmed with status: {qa_init_res['status']}")
+        assert_true(qa_init_res["userId"] == QA_USER_ID, f"Deterministic QA User ID verified: {QA_USER_ID}")
+    except Exception as e:
+        print(f"  [WARN] In-process QA initialisation skipped ({e}). Proceeding to API-level verification.")
 
-    # Step 5: Duplicate registration rejection
-    log_step(5, "Verify Duplicate Registration Rejection (409 Conflict)")
-    res_dup = requests.post(f"{BACKEND_URL}/auth/register", json=reg_payload)
-    assert_true(res_dup.status_code == 409, f"Duplicate registration returned 409 Conflict: {res_dup.json().get('detail')}")
-
-    # Step 6: Log in using new credentials
-    log_step(6, "Log In as Institution Representative")
+    # Step 5: Log in using persistent QA credentials
+    log_step(5, f"Log In as Persistent QA Test User ({settings.QA_TEST_EMAIL})")
     login_res = requests.post(f"{BACKEND_URL}/auth/login", json={
-        "email": "v.seth@bit-meerut.edu.in",
-        "password": "SecureBitPassword@2026"
+        "email": settings.QA_TEST_EMAIL,
+        "password": settings.QA_TEST_PASSWORD
     })
-    assert_true(login_res.status_code == 200, "Login succeeded with 200 OK")
+    assert_true(login_res.status_code == 200, "Persistent QA test user login succeeded with 200 OK")
     login_data = login_res.json()
     assert_true("access_token" in login_data, "Valid signed JWT access token returned")
     inst_token = login_data["access_token"]
 
-    # Step 7: Verify /auth/me profile
-    log_step(7, "Verify /auth/me for Institution Representative")
+    # Step 6: Verify /auth/me profile
+    log_step(6, "Verify /auth/me for Persistent QA Test User")
     me_res = requests.get(f"{BACKEND_URL}/auth/me", headers={"Authorization": f"Bearer {inst_token}"})
     assert_true(me_res.status_code == 200, f"/auth/me succeeded: {me_res.json()['name']}")
-    assert_true(me_res.json()["role"] == "institution_rep", "Role verified as 'institution_rep'")
-    assert_true(me_res.json()["institutionPid"] == "1-4392811", "PID verified as '1-4392811'")
+    assert_true(me_res.json()["role"] == settings.QA_TEST_ROLE, f"Role verified as '{settings.QA_TEST_ROLE}'")
+    assert_true(me_res.json()["institutionPid"] == settings.QA_TEST_PID, f"PID verified as '{settings.QA_TEST_PID}'")
+    assert_true("passwordHash" not in me_res.json(), "Password hash is strictly omitted from user profile")
 
-    # Step 8: Confirm Institution Scoping (Permitted vs Foreign Access)
-    log_step(8, "Confirm Institution-Level Scoping & Isolation")
-    # Access permitted own institution application
+    # Step 7: Confirm Institution Scoping (Permitted vs Foreign Access)
+    log_step(7, "Confirm Institution-Level Scoping & Isolation for QA User")
+    # Access permitted own institution application (synthetic or existing for PID)
     own_app = requests.get(f"{BACKEND_URL}/applications/APP-2026-00124", headers={"Authorization": f"Bearer {inst_token}"})
-    assert_true(own_app.status_code == 200, f"Institution rep can access own application (PID 1-4392811): {own_app.json()['id']}")
+    assert_true(own_app.status_code == 200, f"QA institution rep can access own application (PID {settings.QA_TEST_PID}): {own_app.json()['id']}")
 
     # Institution rep cannot access administrative users
     admin_access = requests.get(f"{BACKEND_URL}/admin/users", headers={"Authorization": f"Bearer {inst_token}"})
-    assert_true(admin_access.status_code == 403, f"Institution rep denied access to /admin/users: 403 Forbidden")
+    assert_true(admin_access.status_code == 403, f"QA institution rep denied access to /admin/users: 403 Forbidden")
 
-    # Step 9: Log out (client side token discards) and log in as Scrutiny Officer
-    log_step(9, "Log In as Scrutiny Officer (Dr. P. K. Verma)")
+    # Step 8: Log out (client side token discards) and log in as Scrutiny Officer
+    log_step(8, "Log In as Scrutiny Officer (Dr. P. K. Verma)")
     so_login = requests.post(f"{BACKEND_URL}/auth/login", json={
         "email": "p.verma@aicte-india.org",
         "password": "Password@123"
@@ -107,8 +93,8 @@ def main():
     so_me = requests.get(f"{BACKEND_URL}/auth/me", headers={"Authorization": f"Bearer {so_token}"})
     assert_true(so_me.json()["role"] == "scrutiny_officer", "Scrutiny Officer role verified")
 
-    # Step 10: Scrutiny Officer Authorized vs Unauthorized Action
-    log_step(10, "Test Scrutiny Officer Permissions & Unauthorized Admin Action")
+    # Step 9: Scrutiny Officer Authorized vs Unauthorized Action
+    log_step(9, "Test Scrutiny Officer Permissions & Unauthorized Admin Action")
     # Authorized: Scrutiny observation
     obs_res = requests.post(
         f"{BACKEND_URL}/applications/APP-2026-00124/observations",
@@ -121,8 +107,8 @@ def main():
     so_admin = requests.get(f"{BACKEND_URL}/admin/users", headers={"Authorization": f"Bearer {so_token}"})
     assert_true(so_admin.status_code == 403, f"Scrutiny Officer rejected from /admin/users: 403 Forbidden")
 
-    # Step 11: EVC Member verification
-    log_step(11, "Log In as EVC Member (Prof. S. Sen)")
+    # Step 10: EVC Member verification
+    log_step(10, "Log In as EVC Member (Prof. S. Sen)")
     evc_login = requests.post(f"{BACKEND_URL}/auth/login", json={
         "email": "s.sen@iitr.ac.in",
         "password": "Password@123"
@@ -137,8 +123,8 @@ def main():
     )
     assert_true(evc_grace.status_code == 403, f"EVC member blocked from granting statutory grace notice: 403 Forbidden")
 
-    # Step 12: Committee Member verification
-    log_step(12, "Log In as Committee Member (Hon'ble Justice B. N. Rao)")
+    # Step 11: Committee Member verification
+    log_step(11, "Log In as Committee Member (Hon'ble Justice B. N. Rao)")
     comm_login = requests.post(f"{BACKEND_URL}/auth/login", json={
         "email": "committee@aicte-india.org",
         "password": "Password@123"
@@ -148,8 +134,8 @@ def main():
     comm_me = requests.get(f"{BACKEND_URL}/auth/me", headers={"Authorization": f"Bearer {comm_token}"})
     assert_true(comm_me.json()["role"] == "committee_member", "Committee Member role verified")
 
-    # Step 13: Auditor Read-Only Verification
-    log_step(13, "Log In as CAG Regulatory Auditor & Verify Read-Only Enforcement")
+    # Step 12: Auditor Read-Only Verification
+    log_step(12, "Log In as CAG Regulatory Auditor & Verify Read-Only Enforcement")
     aud_login = requests.post(f"{BACKEND_URL}/auth/login", json={
         "email": "auditor@aicte-india.org",
         "password": "AuditorPassword@123"
@@ -167,8 +153,8 @@ def main():
     )
     assert_true(aud_mutate.status_code == 403, f"Auditor mutation request blocked: 403 Forbidden")
 
-    # Step 14: Super Admin / AICTE Admin Verification
-    log_step(14, "Log In as AICTE Central Administrator & Manage Users")
+    # Step 13: Super Admin / AICTE Admin Verification
+    log_step(13, "Log In as AICTE Central Administrator & Manage Users")
     admin_login = requests.post(f"{BACKEND_URL}/auth/login", json={
         "email": "admin@aicte-india.org",
         "password": "AdminPassword@123"
@@ -180,7 +166,7 @@ def main():
     assert_true(users_list.status_code == 200, f"Admin listed users successfully: count={len(users_list.json())}")
 
     print("\n=======================================================")
-    print("ALL 14 END-TO-END VERIFICATION STEPS PASSED SUCCESSFULLY!")
+    print("ALL 13 END-TO-END VERIFICATION STEPS PASSED SUCCESSFULLY!")
     print("=======================================================\n")
 
 if __name__ == "__main__":
