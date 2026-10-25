@@ -61,8 +61,13 @@ if (-not (Test-Path $venvPython)) {
     & $venvPip install -r "backend\requirements.txt"
 } else {
     Write-Host "  Verifying backend dependencies..." -ForegroundColor Gray
-    $testImport = & $venvPython -c "import fastapi, motor, bcrypt, jose, networkx, uvicorn" 2>&1
-    if ($LASTEXITCODE -ne 0) {
+    $origEA = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+    & $venvPython -c "import fastapi, motor, bcrypt, jose, networkx, uvicorn" 2>$null
+    $depsOk = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $origEA
+
+    if (-not $depsOk) {
         Write-Host "  Updating backend dependencies..." -ForegroundColor Gray
         & $venvPip install -r "backend\requirements.txt"
     } else {

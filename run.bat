@@ -102,7 +102,7 @@ echo [6/6] Launching PRAVAH Services...
 echo.
 
 :: Start Backend in dedicated window
-start "PRAVAH Backend Engine (Port 8000)" cmd /k "title PRAVAH Backend Engine && cd /d "%SCRIPT_DIR%" && "%VENV_PYTHON%" -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload"
+start "PRAVAH Backend Engine (Port 8000)" "%SCRIPT_DIR%run-backend.bat"
 
 :: Wait for Backend Readiness (up to 25 seconds)
 echo   Waiting for backend readiness probe at http://127.0.0.1:8000/api/ready ...
@@ -123,7 +123,7 @@ goto WAIT_BACKEND
 
 :LAUNCH_FRONTEND
 :: Start Frontend in dedicated window
-start "PRAVAH Web Application (Port 3000)" cmd /k "title PRAVAH Web Application && cd /d "%SCRIPT_DIR%frontend" && call npm run dev"
+start "PRAVAH Web Application (Port 3000)" "%SCRIPT_DIR%run-frontend.bat"
 
 echo.
 echo =====================================================================
